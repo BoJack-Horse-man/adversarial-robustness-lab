@@ -1,0 +1,6 @@
+# Initial baseline dependencies. Exact versions will be recorded after environment verification.
+torch
+torchvision
+numpy
+matplotlib
+tqdm

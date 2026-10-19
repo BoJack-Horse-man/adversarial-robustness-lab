@@ -1,0 +1,1 @@
+run_id,date,dataset,model,training_method,seed,attack,epsilon,step_size,steps,clean_accuracy,robust_accuracy,sparsity,training_time_minutes,notes

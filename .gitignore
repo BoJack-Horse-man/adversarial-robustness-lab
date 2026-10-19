@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.env
+
+# Conda/local environments
+conda-meta/
+
+# Data and model outputs
+data/
+checkpoints/
+outputs/
+*.pt
+*.pth
+*.ckpt
+
+# Experiment artifacts (keep small, intentional CSVs tracked)
+runs/
+wandb/
+.DS_Store
+Thumbs.db
