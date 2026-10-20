@@ -1,121 +1,108 @@
+
 # Research Progress Log
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
-**Status:** Planning  
+**Status:** Initial experiments completed; research ongoing  
 **Last updated:** 2026-10-20
 
-## Current position
-- [x] Research goal and broad milestones drafted.
-- [x] HYDRA selected as the first reference repository.
-- [x] Confirm local computer and development setup.
+## 1. Current Position
+
+### Completed
+- [x] Define the research goal and broad milestones.
+- [x] Select HYDRA as the first reference repository.
+- [x] Confirm the local computer and development setup.
 - [x] Create and connect the personal GitHub repository.
 - [x] Set up the Python environment.
-- [ ] Download and verify CIFAR-10/CIFAR-100.
-- [ ] Train a clean baseline.
-- [ ] Implement and validate FGSM/PGD.
-- [ ] Run adversarial-training experiments.
-- [ ] Study/reproduce a HYDRA experiment.
-- [ ] Compare pruning and robustness results.
+- [x] Download and verify CIFAR-10.
+- [x] Train a clean baseline model.
+- [x] Implement and evaluate FGSM and PGD attacks.
+- [x] Run FGSM adversarial-training experiments.
+- [x] Compare baseline and adversarially trained models.
 
-## Session log
+### Remaining
+- [ ] Prepare and evaluate CIFAR-100.
+- [ ] Study the HYDRA paper and implementation.
+- [ ] Reproduce a suitable HYDRA experiment.
+- [ ] Investigate pruning and robustness trade-offs.
+- [ ] Improve experimental reproducibility with multiple random seeds.
+- [ ] Measure model size, runtime, and computational efficiency.
 
-### 2026-10-19: Planning
+## 2. Session Log
+
+### 2026-10-19: Research Planning
+
 **Completed**
 - Defined a staged workflow from environment setup to pruning research.
 - Chose CIFAR-10 as the first working dataset and CIFAR-100 as the follow-up.
 - Selected HYDRA as the first codebase to study.
 
 **Decisions**
-- Work one step at a time; do not proceed until the current step is verified.
-- Keep our code in a separate repository from the reference implementations.
-- Start with a modern baseline, then inspect HYDRA's older dependencies in isolation.
-- Track experiment settings and results instead of relying on memory.
+- Work one step at a time and verify each step before proceeding.
+- Keep our code in a separate repository from reference implementations.
+- Start with a baseline model before studying HYDRA's older dependencies in isolation.
+- Record experiment settings and results instead of relying on memory.
 
-**Open questions**
-- Operating system and editor?
-- Conda/Python status?
-- Local NVIDIA GPU or cloud GPU availability?
-- GitHub account/repository status?
-- Git installation and authentication status?
+### 2026-10-20: Environment Setup
 
-**Next task**
-- Confirm setup details, then create the local project folder and GitHub repository.
+**Environment**
+- Operating system: Windows 10.
+- Python: 3.10.22.
+- Conda environment: `adv-robust`.
+- PyTorch: 2.5.1+cu121.
+- TorchVision: 0.20.1+cu121.
+- NumPy: 2.2.6.
+- Matplotlib: 3.10.9.
+- tqdm: 4.70.1.
+- GPU: NVIDIA GeForce GTX 1050, 4 GB VRAM.
 
+**Verification**
+- [x] Verified that `torch.cuda.is_available()` returns `True`.
+- [x] Successfully performed matrix multiplication on `cuda:0`.
+- [x] Initialized the GitHub repository and connected the remote repository.
 
-## Environment Setup - Completed 2026-10-20
+### First CIFAR-10 Baseline
 
-- Created the Conda environment `adv-robust`.
-- Python version: 3.10.22.
-- PyTorch version: 2.5.1+cu121.
-- TorchVision version: 0.20.1+cu121.
-- NumPy version: 2.2.6.
-- Matplotlib version: 3.10.9.
-- tqdm version: 4.70.1.
-- GPU: NVIDIA GeForce GTX 1050 with 4 GB VRAM.
-- Verified that `torch.cuda.is_available()` returns `True`.
-- Successfully performed a matrix multiplication on `cuda:0`.
-- GitHub repository initialized and connected to the remote repository.
+**Dataset**
+- Dataset: CIFAR-10.
+- Training images: 50,000.
+- Test images: 10,000.
+- Transformation: `ToTensor()`, scaling pixel values to [0, 1].
 
-### Next tasks
-1. Verify CIFAR-10 dataset downloading and loading.
-2. Build a simple baseline image classifier.
-3. Train and record clean test accuracy.
-4. Implement and evaluate FGSM and PGD attacks.
-5. Explore adversarial training and efficient-model defenses.
+**Model and training**
+- Architecture: SimpleCNN.
+- Trainable parameters: 94,538.
+- Optimizer: Adam.
+- Learning rate: 0.001.
+- Batch size: 64.
+- Epochs: 5.
+- Random seed: 42.
 
-## First CIFAR-10 Baseline - Completed
+**Results**
+- Epoch 1 training accuracy: 31.50%.
+- Epoch 5 training accuracy: 53.85%.
+- Epoch 5 average training loss: 1.2739.
+- Clean test accuracy: 55.53%.
 
-### Environment
-- Python: 3.10.22
-- PyTorch: 2.5.1+cu121
-- GPU: NVIDIA GeForce GTX 1050, 4 GB VRAM
+**Artifacts**
+- Training script: `train_baseline.py`.
+- Dataset check: `check_cifar10.py`.
+- Dataset visualization: `inspect_cifar10.py`.
+- Results: `experiments/baseline_result.txt`.
+- Model weights: `checkpoints/simple_cnn.pth` (local; not tracked by Git).
 
-### Dataset
-- CIFAR-10
-- Training images: 50,000
-- Test images: 10,000
-- Transform: ToTensor, scaling pixel values to [0, 1]
+**Note:** This is a preliminary five-epoch baseline, not a final benchmark or a multi-seed result.
 
-### Model
-- Architecture: SimpleCNN
-- Trainable parameters: 94,538
-- Optimizer: Adam
-- Learning rate: 0.001
-- Batch size: 64
-- Epochs: 5
-- Random seed: 42
+### FGSM Attack Evaluation
 
-### Results
-- Epoch 1 training accuracy: 31.50%
-- Epoch 5 training accuracy: 53.85%
-- Epoch 5 average training loss: 1.2739
-- Clean test accuracy: 55.53%
+**Setup**
+- Model: SimpleCNN trained for five epochs.
+- Dataset: CIFAR-10 test set (10,000 images).
+- Attack: Untargeted Fast Gradient Sign Method (FGSM).
+- Pixel range: [0, 1].
+- Checkpoint: `checkpoints/simple_cnn.pth`.
 
-### Artifacts
-- Training script: train_baseline.py
-- Dataset check: check_cifar10.py
-- Dataset visualization: inspect_cifar10.py
-- Results record: experiments/baseline_result.txt
-- Model weights: checkpoints/simple_cnn.pth (local, not tracked by Git)
+**Results**
 
-### Next tasks
-1. Record the baseline in the experiment results table.
-2. Implement FGSM and evaluate clean versus adversarial accuracy.
-3. Implement PGD and compare attack strength.
-4. Investigate adversarial training and efficient-model defenses.
-
-Note: This is a preliminary five-epoch baseline. It is not yet a final benchmark or a multi-seed result.
-
-## FGSM Attack Evaluation - Completed
-
-### Setup
-- Model: SimpleCNN, trained for 5 epochs
-- Dataset: CIFAR-10 test set (10,000 images)
-- Evaluation: untargeted FGSM
-- Pixel range: [0, 1]
-- Checkpoint: checkpoints/simple_cnn.pth
-
-### Results
 | Condition | Epsilon | Test accuracy |
 |---|---:|---:|
 | Clean | 0 | 55.53% |
@@ -123,102 +110,156 @@ Note: This is a preliminary five-epoch baseline. It is not yet a final benchmark
 | FGSM | 4/255 | 20.54% |
 | FGSM | 8/255 | 7.61% |
 
-### Interpretation
-Test accuracy decreased as the FGSM perturbation strength increased. At epsilon = 8/255, accuracy fell to 7.61%, indicating that this baseline model is vulnerable to this attack under the tested settings.
+**Interpretation**
+
+Test accuracy decreased as the FGSM perturbation strength increased. At epsilon = 8/255, accuracy fell to 7.61%, indicating that this baseline model is vulnerable to FGSM under the tested settings.
 
 These are preliminary results from one trained model and one random seed. They do not establish general robustness conclusions.
 
-### Artifact
-- Evaluation script: eval_fgsm.py
-- Results: experiments/fgsm_results.csv
+**Artifact**
+- Script: `eval_fgsm.py`.
+- Results: `experiments/fgsm_results.csv`.
 
-### Next task
-Implement Projected Gradient Descent (PGD), evaluate the same checkpoint, and compare the results under clearly specified attack settings.
+### PGD Attack Evaluation
 
-## PGD Attack Evaluation
+**Experimental setup**
+- Dataset: CIFAR-10 test set (10,000 images).
+- Model: SimpleCNN trained for five epochs.
+- Device: NVIDIA GPU (`cuda`).
+- Attack: Untargeted Projected Gradient Descent (PGD).
+- Maximum perturbation: ε = 8/255.
+- Step size: α = 2/255.
+- Iterations: 10.
+- Random start: Enabled.
+- Pixel range: [0, 1].
 
-**Status:** Completed
-
-### Experimental setup
-- Dataset: CIFAR-10 test set (10,000 images)
-- Model: SimpleCNN trained for 5 epochs
-- Device: NVIDIA GPU (`cuda`)
-- Attack: Untargeted Projected Gradient Descent (PGD)
-- Maximum perturbation: ε = 8/255
-- Step size: α = 2/255
-- Iterations: 10
-- Random start: Enabled
-- Pixel range: [0, 1]
-
-### Results
+**Standalone evaluation results**
 
 | Evaluation | Test accuracy |
 |---|---:|
 | Clean images | 55.53% |
 | FGSM, ε = 8/255 | 7.61% |
-| PGD, ε = 8/255 | 3.49% |
+| PGD, ε = 8/255, 10 steps | 3.49% |
 
-PGD reduced the model's accuracy by 52.04 percentage points compared with clean evaluation. Under these experimental settings, PGD reduced accuracy further than FGSM at the same maximum perturbation.
+PGD reduced accuracy by 52.04 percentage points compared with clean evaluation. Under these settings, PGD reduced accuracy further than FGSM at the same maximum perturbation.
 
-### Interpretation
-The model is vulnerable to gradient-based adversarial attacks. The iterative PGD attack was more effective than FGSM in this experiment. However, the model's clean accuracy is only 55.53%, so further experiments are needed before drawing broader conclusions about robustness.
+**Interpretation**
 
-### Output
-- Script: `eval_pgd.py`
-- Results: `experiments/pgd_results.csv`
+The model is vulnerable to gradient-based adversarial attacks. However, its clean accuracy is only 55.53%, so further experiments are needed before drawing broader conclusions about robustness.
 
-### Next step
-Compare the attacks systematically, then implement adversarial training and evaluate whether it improves robustness against FGSM and PGD.
+**Artifact**
+- Script: `eval_pgd.py`.
+- Results: `experiments/pgd_results.csv`.
 
+### FGSM Adversarial Training and Model Comparison
 
-## Completed experiments
+**Setup**
+- Dataset: CIFAR-10.
+- Training method: FGSM adversarial training.
+- Training perturbation: ε = 8/255.
+- Epochs: 5.
+- Batch size: 64.
+- Optimizer: Adam.
+- Learning rate: 0.001.
+- The adversarially trained model was trained separately from scratch.
 
-- [x] Set up the PyTorch and CUDA environment.
-- [x] Download and inspect CIFAR-10.
-- [x] Train the baseline SimpleCNN.
-- [x] Evaluate the baseline using FGSM.
-- [x] Evaluate the baseline using PGD.
-- [x] Train a separate model using FGSM adversarial training.
-- [x] Compare baseline and adversarially trained models.
-- [ ] Prepare and evaluate CIFAR-100.
-- [ ] Study and reproduce the relevant parts of HYDRA.
-- [ ] Investigate pruning and robustness trade-offs.
+**Baseline versus adversarially trained model**
 
-## Experiment results
+| Evaluation | Baseline | Adversarially trained |
+|---|---:|---:|
+| Clean images | 55.53% | 45.88% |
+| FGSM, 2/255 | 34.57% | 41.39% |
+| FGSM, 4/255 | 20.54% | 37.12% |
+| FGSM, 8/255 | 7.61% | 28.87% |
+| PGD, 8/255, 10 steps | 3.46% | 27.68% |
 
-Dataset: CIFAR-10 test set (10,000 images)
+**Main observations**
+- Adversarial training improved accuracy under all tested FGSM perturbation strengths.
+- It also improved accuracy under the tested PGD configuration.
+- Clean test accuracy decreased from 55.53% to 45.88%, a reduction of 9.65 percentage points.
+- The baseline PGD result was 3.49% in the standalone run and 3.46% in the model-comparison run. These values came from separate runs with random PGD initialization.
 
-Baseline model:
-- Clean accuracy: 55.53%
-- FGSM, epsilon 2/255: 34.57%
-- FGSM, epsilon 4/255: 20.54%
-- FGSM, epsilon 8/255: 7.61%
-- PGD, epsilon 8/255, 10 steps: 3.46%
+**Interpretation**
 
-FGSM adversarially trained model:
-- Training: 5 epochs, batch size 64
-- Training epsilon: 8/255
-- Clean accuracy: 45.88%
-- FGSM, epsilon 2/255: 41.39%
-- FGSM, epsilon 4/255: 37.12%
-- FGSM, epsilon 8/255: 28.87%
-- PGD, epsilon 8/255, 10 steps: 27.68%
+The preliminary results suggest a trade-off between clean accuracy and adversarial robustness. Adversarial training improved robust accuracy in the tested experiments but reduced clean accuracy. More experiments are needed to assess reproducibility and generalization.
 
-Preliminary observation:
-Adversarial training improved accuracy under the tested FGSM
-and PGD attacks but reduced clean test accuracy. More experiments
-are needed to assess reproducibility and generalization.
+**Artifacts**
+- Training script: `train_adversarial.py`.
+- Evaluation script: `eval_model_comparison.py`.
+- Training summary: `experiments/adversarial_training_result.txt`.
+- Training history: `experiments/adversarial_training_history.csv`.
+- Comparison results: `experiments/model_robustness_comparison.csv`.
 
-Result files:
-- experiments/baseline_result.txt
-- experiments/fgsm_results.csv
-- experiments/pgd_results.csv
-- experiments/adversarial_training_result.txt
-- experiments/adversarial_training_history.csv
-- experiments/model_robustness_comparison.csv
+## 3. Consolidated Experiment Results
 
+Dataset: CIFAR-10 test set (10,000 images).
 
-## Experiment results
-No experiments run yet.
+The detailed experimental setups and interpretations are documented in the session log above. The key accuracy results are summarized here.
 
-Use `experiments/results.csv` to record model, dataset, training method, seed, attack settings, clean accuracy, robust accuracy, sparsity, runtime, and notes.
+| Model | Clean | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD 8/255 |
+|---|---:|---:|---:|---:|---:|
+| Baseline SimpleCNN | 55.53% | 34.57% | 20.54% | 7.61% | 3.46%* |
+| FGSM adversarial training | 45.88% | 41.39% | 37.12% | 28.87% | 27.68% |
+
+*The baseline PGD accuracy in the comparison experiment was 3.46%; the separate PGD evaluation returned 3.49%.
+
+**Result files**
+- `experiments/baseline_result.txt`
+- `experiments/fgsm_results.csv`
+- `experiments/pgd_results.csv`
+- `experiments/adversarial_training_result.txt`
+- `experiments/adversarial_training_history.csv`
+- `experiments/model_robustness_comparison.csv`
+
+## 4. Current Limitations
+
+- The baseline is a small custom CNN, not ResNet-18 or another standard benchmark architecture.
+- Training was limited to five epochs.
+- Important experiments have not yet been repeated across multiple random seeds.
+- PGD evaluation should be further checked for reproducibility and attack strength.
+- CIFAR-100 has not yet been evaluated.
+- Pruning and quantization have not yet been implemented.
+- No HYDRA experiment has been reproduced.
+- Model size, inference latency, and computational savings have not yet been measured.
+
+## 5. Next Steps
+
+### Priority 1: Validate Existing Experiments
+1. Review the FGSM and PGD implementations.
+2. Improve evaluation reproducibility where possible.
+3. Repeat key experiments with multiple random seeds.
+4. Record attack settings consistently.
+5. Investigate stronger evaluation settings and potential robustness evaluation pitfalls.
+
+### Priority 2: Study HYDRA
+1. Read *HYDRA: Pruning Adversarially Robust Neural Networks*.
+2. Understand its motivation and main contribution.
+3. Study its pretraining, pruning, and fine-tuning stages.
+4. Compare its pruning approach with ordinary magnitude-based pruning.
+5. Inspect the implementation before attempting a reproduction.
+
+**References**
+- Paper: https://arxiv.org/abs/2002.10509
+- Official repository: https://github.com/inspire-group/hydra
+
+### Priority 3: Extend the Experiments
+1. Prepare and evaluate CIFAR-100.
+2. Consider a standard architecture such as ResNet-18, subject to GPU memory limits.
+3. Implement and evaluate a suitable pruning method.
+4. Measure parameter count, model size, accuracy, robustness, and inference time.
+5. Compare clean and robust accuracy before and after pruning.
+6. Explore quantization if resources permit.
+
+### Priority 4: Identify a Research Gap
+1. Review related work on adversarial robustness and model compression.
+2. Compare the strengths and limitations of existing methods.
+3. Identify a research question that can be tested with the available hardware.
+4. Discuss the proposed research question and experimental design with the supervisor.
+
+## 6. Research Decisions and Workflow
+
+- Work one step at a time and verify each step before proceeding.
+- Keep our implementation separate from reference repositories.
+- Record experimental settings and results in the project.
+- Treat current findings as preliminary until they have been tested for reproducibility.
+- Base the eventual research contribution on a clearly defined research gap and reproducible experiments.
