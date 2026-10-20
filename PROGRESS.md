@@ -135,6 +135,41 @@ These are preliminary results from one trained model and one random seed. They d
 ### Next task
 Implement Projected Gradient Descent (PGD), evaluate the same checkpoint, and compare the results under clearly specified attack settings.
 
+## PGD Attack Evaluation
+
+**Status:** Completed
+
+### Experimental setup
+- Dataset: CIFAR-10 test set (10,000 images)
+- Model: SimpleCNN trained for 5 epochs
+- Device: NVIDIA GPU (`cuda`)
+- Attack: Untargeted Projected Gradient Descent (PGD)
+- Maximum perturbation: ε = 8/255
+- Step size: α = 2/255
+- Iterations: 10
+- Random start: Enabled
+- Pixel range: [0, 1]
+
+### Results
+
+| Evaluation | Test accuracy |
+|---|---:|
+| Clean images | 55.53% |
+| FGSM, ε = 8/255 | 7.61% |
+| PGD, ε = 8/255 | 3.49% |
+
+PGD reduced the model's accuracy by 52.04 percentage points compared with clean evaluation. Under these experimental settings, PGD reduced accuracy further than FGSM at the same maximum perturbation.
+
+### Interpretation
+The model is vulnerable to gradient-based adversarial attacks. The iterative PGD attack was more effective than FGSM in this experiment. However, the model's clean accuracy is only 55.53%, so further experiments are needed before drawing broader conclusions about robustness.
+
+### Output
+- Script: `eval_pgd.py`
+- Results: `experiments/pgd_results.csv`
+
+### Next step
+Compare the attacks systematically, then implement adversarial training and evaluate whether it improves robustness against FGSM and PGD.
+
 ## Experiment results
 No experiments run yet.
 
