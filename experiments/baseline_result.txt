@@ -1,0 +1,7 @@
+Seed: 42
+Device: cuda
+Epochs: 5
+Batch size: 64
+Optimizer: Adam
+Learning rate: 0.001
+Clean test accuracy: 55.53%
