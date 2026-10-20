@@ -1,0 +1,11 @@
+model,attack,epsilon,accuracy_percent
+Baseline,Clean,0.0,55.53
+Baseline,FGSM,0.00784313725490196,34.57
+Baseline,FGSM,0.01568627450980392,20.54
+Baseline,FGSM,0.03137254901960784,7.61
+Baseline,PGD,0.03137254901960784,3.46
+Adversarially trained,Clean,0.0,45.88
+Adversarially trained,FGSM,0.00784313725490196,41.39
+Adversarially trained,FGSM,0.01568627450980392,37.12
+Adversarially trained,FGSM,0.03137254901960784,28.87
+Adversarially trained,PGD,0.03137254901960784,27.68

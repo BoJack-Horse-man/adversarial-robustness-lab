@@ -1,0 +1,9 @@
+CIFAR-10 FGSM Adversarial Training
+Seed: 42
+Epochs: 5
+Batch size: 64
+Learning rate: 0.001
+FGSM epsilon: 0.031373
+Final clean test accuracy: 45.88%
+Checkpoint: ./checkpoints\simple_cnn_adv.pth
+Training history CSV: ./experiments\adversarial_training_history.csv
