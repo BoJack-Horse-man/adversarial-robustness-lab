@@ -10,7 +10,7 @@
 - [x] Confirm local computer and development setup.
 - [x] Create and connect the personal GitHub repository.
 - [x] Set up the Python environment.
-- [X] Download and verify CIFAR-10/CIFAR-100.
+- [ ] Download and verify CIFAR-10/CIFAR-100.
 - [ ] Train a clean baseline.
 - [ ] Implement and validate FGSM/PGD.
 - [ ] Run adversarial-training experiments.
@@ -169,6 +169,54 @@ The model is vulnerable to gradient-based adversarial attacks. The iterative PGD
 
 ### Next step
 Compare the attacks systematically, then implement adversarial training and evaluate whether it improves robustness against FGSM and PGD.
+
+
+## Completed experiments
+
+- [x] Set up the PyTorch and CUDA environment.
+- [x] Download and inspect CIFAR-10.
+- [x] Train the baseline SimpleCNN.
+- [x] Evaluate the baseline using FGSM.
+- [x] Evaluate the baseline using PGD.
+- [x] Train a separate model using FGSM adversarial training.
+- [x] Compare baseline and adversarially trained models.
+- [ ] Prepare and evaluate CIFAR-100.
+- [ ] Study and reproduce the relevant parts of HYDRA.
+- [ ] Investigate pruning and robustness trade-offs.
+
+## Experiment results
+
+Dataset: CIFAR-10 test set (10,000 images)
+
+Baseline model:
+- Clean accuracy: 55.53%
+- FGSM, epsilon 2/255: 34.57%
+- FGSM, epsilon 4/255: 20.54%
+- FGSM, epsilon 8/255: 7.61%
+- PGD, epsilon 8/255, 10 steps: 3.46%
+
+FGSM adversarially trained model:
+- Training: 5 epochs, batch size 64
+- Training epsilon: 8/255
+- Clean accuracy: 45.88%
+- FGSM, epsilon 2/255: 41.39%
+- FGSM, epsilon 4/255: 37.12%
+- FGSM, epsilon 8/255: 28.87%
+- PGD, epsilon 8/255, 10 steps: 27.68%
+
+Preliminary observation:
+Adversarial training improved accuracy under the tested FGSM
+and PGD attacks but reduced clean test accuracy. More experiments
+are needed to assess reproducibility and generalization.
+
+Result files:
+- experiments/baseline_result.txt
+- experiments/fgsm_results.csv
+- experiments/pgd_results.csv
+- experiments/adversarial_training_result.txt
+- experiments/adversarial_training_history.csv
+- experiments/model_robustness_comparison.csv
+
 
 ## Experiment results
 No experiments run yet.
