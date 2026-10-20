@@ -2,14 +2,14 @@
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
 **Status:** Planning  
-**Last updated:** 2026-10-19
+**Last updated:** 2026-10-20
 
 ## Current position
 - [x] Research goal and broad milestones drafted.
 - [x] HYDRA selected as the first reference repository.
-- [ ] Confirm local computer and development setup.
-- [ ] Create and connect the personal GitHub repository.
-- [ ] Set up the Python environment.
+- [x] Confirm local computer and development setup.
+- [x] Create and connect the personal GitHub repository.
+- [x] Set up the Python environment.
 - [ ] Download and verify CIFAR-10/CIFAR-100.
 - [ ] Train a clean baseline.
 - [ ] Implement and validate FGSM/PGD.
@@ -41,6 +41,28 @@
 **Next task**
 - Confirm setup details, then create the local project folder and GitHub repository.
 
+
+## Environment Setup - Completed 2026-10-20
+
+- Created the Conda environment `adv-robust`.
+- Python version: 3.10.22.
+- PyTorch version: 2.5.1+cu121.
+- TorchVision version: 0.20.1+cu121.
+- NumPy version: 2.2.6.
+- Matplotlib version: 3.10.9.
+- tqdm version: 4.70.1.
+- GPU: NVIDIA GeForce GTX 1050 with 4 GB VRAM.
+- Verified that `torch.cuda.is_available()` returns `True`.
+- Successfully performed a matrix multiplication on `cuda:0`.
+- GitHub repository initialized and connected to the remote repository.
+
+### Next tasks
+1. Verify CIFAR-10 dataset downloading and loading.
+2. Build a simple baseline image classifier.
+3. Train and record clean test accuracy.
+4. Implement and evaluate FGSM and PGD attacks.
+5. Explore adversarial training and efficient-model defenses.
+   
 ## Experiment results
 No experiments run yet.
 
