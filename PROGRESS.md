@@ -106,6 +106,35 @@
 
 Note: This is a preliminary five-epoch baseline. It is not yet a final benchmark or a multi-seed result.
 
+## FGSM Attack Evaluation - Completed
+
+### Setup
+- Model: SimpleCNN, trained for 5 epochs
+- Dataset: CIFAR-10 test set (10,000 images)
+- Evaluation: untargeted FGSM
+- Pixel range: [0, 1]
+- Checkpoint: checkpoints/simple_cnn.pth
+
+### Results
+| Condition | Epsilon | Test accuracy |
+|---|---:|---:|
+| Clean | 0 | 55.53% |
+| FGSM | 2/255 | 34.57% |
+| FGSM | 4/255 | 20.54% |
+| FGSM | 8/255 | 7.61% |
+
+### Interpretation
+Test accuracy decreased as the FGSM perturbation strength increased. At epsilon = 8/255, accuracy fell to 7.61%, indicating that this baseline model is vulnerable to this attack under the tested settings.
+
+These are preliminary results from one trained model and one random seed. They do not establish general robustness conclusions.
+
+### Artifact
+- Evaluation script: eval_fgsm.py
+- Results: experiments/fgsm_results.csv
+
+### Next task
+Implement Projected Gradient Descent (PGD), evaluate the same checkpoint, and compare the results under clearly specified attack settings.
+
 ## Experiment results
 No experiments run yet.
 
