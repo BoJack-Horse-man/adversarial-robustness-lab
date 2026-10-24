@@ -1,0 +1,2 @@
+dataset,attack,epsilon,alpha,steps,random_start,clean_accuracy_percent,adversarial_accuracy_percent,accuracy_drop_percentage_points
+CIFAR-100,PGD,0.03137254901960784,0.00784313725490196,10,True,24.61,2.33,22.28

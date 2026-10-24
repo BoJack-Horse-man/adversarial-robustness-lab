@@ -3,7 +3,7 @@
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
 **Status:** Initial experiments completed; research ongoing  
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-25
 
 ## 1. Current Position
 
@@ -18,9 +18,13 @@
 - [x] Implement and evaluate FGSM and PGD attacks.
 - [x] Run FGSM adversarial-training experiments.
 - [x] Compare baseline and adversarially trained models.
+- [x] Prepare and validate CIFAR-100 (50,000 training and 10,000 test images).
+- [x] Train a CIFAR-100 clean baseline.
+- [x] Implement and evaluate FGSM and PGD attacks on CIFAR-100.
+- [x] Train a CIFAR-100 model using FGSM adversarial training.
+- [x] Evaluate FGSM and PGD robustness after adversarial training.
 
 ### Remaining
-- [ ] Prepare and evaluate CIFAR-100.
 - [ ] Study the HYDRA paper and implementation.
 - [ ] Reproduce a suitable HYDRA experiment.
 - [ ] Investigate pruning and robustness trade-offs.
@@ -192,9 +196,11 @@ The preliminary results suggest a trade-off between clean accuracy and adversari
 
 ## 3. Consolidated Experiment Results
 
-Dataset: CIFAR-10 test set (10,000 images).
+The detailed experimental setups and interpretations are documented in the session log above. The key accuracy results for CIFAR-10 and CIFAR-100 are summarized below.
 
-The detailed experimental setups and interpretations are documented in the session log above. The key accuracy results are summarized here.
+### CIFAR-10
+
+Dataset: CIFAR-10 test set (10,000 images).
 
 | Model | Clean | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD 8/255 |
 |---|---:|---:|---:|---:|---:|
@@ -203,7 +209,25 @@ The detailed experimental setups and interpretations are documented in the sessi
 
 *The baseline PGD accuracy in the comparison experiment was 3.46%; the separate PGD evaluation returned 3.49%.
 
-**Result files**
+### CIFAR-100
+
+Dataset: CIFAR-100 test set (10,000 images; 100 classes).
+
+| Model | Clean | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD 8/255 |
+|---|---:|---:|---:|---:|---:|
+| Baseline SimpleCNN | 24.61% | 15.60% | 9.43% | 3.80% | 2.33% |
+| FGSM adversarial training | 17.84% | 15.70% | 13.73% | 10.33% | 9.86% |
+
+### Preliminary observations
+
+- On CIFAR-100, FGSM adversarial training increased PGD-10 accuracy from 2.33% to 9.86%, an improvement of 7.53 percentage points.
+- Clean accuracy decreased from 24.61% to 17.84%, a reduction of 6.77 percentage points.
+- At FGSM ε=8/255, accuracy increased from 3.80% to 10.33%.
+- These results are preliminary: both models were trained for five epochs using one random seed. Multiple-seed experiments, longer training, and further robustness evaluation are needed before drawing firm conclusions.
+
+### Result files
+
+**CIFAR-10**
 - `experiments/baseline_result.txt`
 - `experiments/fgsm_results.csv`
 - `experiments/pgd_results.csv`
@@ -211,16 +235,26 @@ The detailed experimental setups and interpretations are documented in the sessi
 - `experiments/adversarial_training_history.csv`
 - `experiments/model_robustness_comparison.csv`
 
+**CIFAR-100**
+- `experiments/cifar100_baseline_result.txt`
+- `experiments/cifar100_fgsm_results.csv`
+- `experiments/cifar100_pgd_results.csv`
+- `experiments/cifar100_adversarial_training_result.txt`
+- `experiments/cifar100_adversarial_training_history.csv`
+- `experiments/cifar100_fgsm_adv_training_results.csv`
+- `experiments/cifar100_pgd_adv_training_results.csv`
+
 ## 4. Current Limitations
 
 - The baseline is a small custom CNN, not ResNet-18 or another standard benchmark architecture.
-- Training was limited to five epochs.
+- Training was limited to five epochs on both CIFAR-10 and CIFAR-100.
 - Important experiments have not yet been repeated across multiple random seeds.
-- PGD evaluation should be further checked for reproducibility and attack strength.
-- CIFAR-100 has not yet been evaluated.
+- The CIFAR-100 results are preliminary and need validation with longer training runs and multiple seeds.
+- PGD evaluation should be further checked for reproducibility, attack strength, and possible evaluation pitfalls.
 - Pruning and quantization have not yet been implemented.
-- No HYDRA experiment has been reproduced.
+- HYDRA diagnostics have been performed, but a full research experiment has not been reproduced.
 - Model size, inference latency, and computational savings have not yet been measured.
+- The current results do not yet establish the trade-off between model compression and adversarial robustness.
 
 ## 5. Next Steps
 
@@ -243,7 +277,7 @@ The detailed experimental setups and interpretations are documented in the sessi
 - Official repository: https://github.com/inspire-group/hydra
 
 ### Priority 3: Extend the Experiments
-1. Prepare and evaluate CIFAR-100.
+1. Validate CIFAR-100 results across multiple random seeds and longer training runs.
 2. Consider a standard architecture such as ResNet-18, subject to GPU memory limits.
 3. Implement and evaluate a suitable pruning method.
 4. Measure parameter count, model size, accuracy, robustness, and inference time.

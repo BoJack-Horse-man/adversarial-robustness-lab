@@ -1,0 +1,9 @@
+Dataset: CIFAR-100
+Seed: 42
+Device: cuda
+Epochs: 5
+Training batch size: 64
+Test batch size: 128
+Optimizer: Adam
+Learning rate: 0.001
+Clean test accuracy: 24.61%
