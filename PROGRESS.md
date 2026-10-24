@@ -263,3 +263,70 @@ The detailed experimental setups and interpretations are documented in the sessi
 - Record experimental settings and results in the project.
 - Treat current findings as preliminary until they have been tested for reproducibility.
 - Base the eventual research contribution on a clearly defined research gap and reproducible experiments.
+
+## HYDRA Reference-Code Diagnostics - 2026-10-24
+
+**Status:** Smoke tests completed; full paper reproduction not completed.
+
+These experiments use the separate reference repository at
+`E:\SUST\super\Experiment\hydra-reference`. Data and results are stored separately from the main project:
+
+- Data: `E:\SUST\super\Experiment\hydra-pilot-data`
+- Results: `E:\SUST\super\Experiment\hydra-pilot-results`
+- Reference paper: *HYDRA: Pruning Adversarially Robust Neural Networks* (NeurIPS 2020), https://arxiv.org/abs/2002.10509
+
+### Environment and scope
+
+- Dataset: CIFAR-10, using a 10% training-data fraction for smoke tests.
+- Architecture: lightweight `cifar_model`.
+- Hardware: NVIDIA GeForce GTX 1050, 4 GB VRAM.
+- These short runs test whether the reference code and experiment pipeline execute. They are not a faithful reproduction of the paper.
+
+### Diagnostic results
+
+| Experiment | Best/final reported validation accuracy | Weight sparsity |
+|---|---:|---:|
+| Dense baseline, Run 7 | 24.87% | 0% |
+| Subnet pretraining, before pruning | 17.97% | Nominally 0% at k=1.0 |
+| Pruning run, dense export | 27.83% | 50% |
+
+Settings varied by run. The dense baseline and subnet runs used two epochs; the pruning diagnostic used two epochs with `k=0.5` and `--save-dense`. The pruning checkpoint was evaluated using `--layer-type dense`.
+
+**Interpretation caution:** These numbers are not a fair controlled comparison. Training histories and procedures differ, only 10% of CIFAR-10 training data was used, and the pruning stage continued training the pruning scores. The 27.83% result must not be interpreted as evidence that pruning improves accuracy.
+
+### Checkpoint and sparsity verification
+
+- Dense baseline checkpoint evaluated at 24.87%, matching its saved best-accuracy metadata.
+- Subnet checkpoint contained `popup_scores` parameters.
+- Pruning-stage diagnostic reported 50% pruning.
+- Exported `model_best_dense.pth.tar` contained 214,760 weight parameters, of which 107,380 were zero: verified weight sparsity of 50%.
+- The pruning-stage sanity check reported weight updates disabled and score updates enabled, as expected for that stage.
+
+### PGD implementation smoke test
+
+A small synthetic-batch test called HYDRA's `pgd_whitebox()` implementation with epsilon `8/255`, three steps, step size `2/255`, random start enabled, and pixel range `[0,1]`.
+
+Checks passed:
+- Output shape remained `(4, 3, 32, 32)`.
+- Adversarial pixels remained within `[0,1]`.
+- Maximum perturbation was approximately `0.0313726`, within epsilon `8/255`.
+- All output values were finite.
+
+This was a numerical smoke test on random inputs and labels. It did **not** measure attack success rate or adversarial accuracy.
+
+### Reference-code caveats
+
+- `train.py` has a nonfatal logging-formatting issue around the dataset-size log message.
+- `utils/eval.py` was patched from `.view(-1)` to `.reshape(-1)` to avoid a tensor-layout error.
+- `utils/model.py` was patched to return `(False, False)` when `sanity_check_paramter_updates` encounters a dense model without `popup_scores`. Treat this fallback cautiously because it may not accurately diagnose parameter updates for every dense model.
+- A pruning run without `--save-dense` failed when the code attempted to report the pruning fraction without a dense checkpoint. The diagnostic run was repeated with `--save-dense`.
+
+These changes and caveats belong to the separate reference repository, not the main project.
+
+### Next steps
+
+1. Review the reference-code patches and document them reproducibly.
+2. Run controlled experiments with matched data, architecture, seeds, training budgets, and evaluation procedures.
+3. Evaluate clean accuracy and adversarial accuracy using the same attack settings for every model.
+4. Verify sparsity and checkpoint loading for each run.
+5. Only then assess whether a meaningful comparison or research question can be supported.
