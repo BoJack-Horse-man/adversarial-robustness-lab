@@ -330,3 +330,41 @@ These changes and caveats belong to the separate reference repository, not the m
 3. Evaluate clean accuracy and adversarial accuracy using the same attack settings for every model.
 4. Verify sparsity and checkpoint loading for each run.
 5. Only then assess whether a meaningful comparison or research question can be supported.
+
+### HYDRA subnet PGD evaluation - 2026-10-24
+
+**Status:** Evaluation completed; results are preliminary.
+
+Checkpoint:
+`hydra-pilot-results/cifar10-subnet-pretrain/pretrain/latest_exp/checkpoint/model_best.pth.tar`
+
+Configuration:
+- Dataset: CIFAR-10 test set (10,000 images).
+- Architecture: `cifar_model`, subnet, `k=1.0`.
+- Checkpoint: best subnet pretraining checkpoint, loaded at epoch 1.
+- Attack: HYDRA `pgd_whitebox()`, 10 steps, random start enabled.
+- Perturbation budget: epsilon `8/255` (approximately `0.03137255`).
+- Step size: `2/255` (approximately `0.00784314`).
+- Pixel range: `[0, 1]`.
+
+Results:
+
+| Metric | Clean inputs | PGD adversarial inputs |
+|---|---:|---:|
+| Top-1 accuracy | 17.97% | 9.49% |
+| Top-5 accuracy | 70.83% | 49.44% |
+
+Top-1 accuracy decreased by 8.48 percentage points under this evaluation, approximately a 47.2% relative decrease from clean accuracy.
+
+**Interpretation and limitations:**
+- The checkpoint was trained for only two epochs using 10% of the CIFAR-10 training data; these are pilot results, not a full HYDRA reproduction.
+- The existing HYDRA PGD implementation has methodological limitations that should be reviewed, including its random-start handling before the first gradient step.
+- The accuracy decrease alone does not establish a reliable robustness comparison. The attack implementation and evaluation protocol should be independently checked before drawing conclusions.
+- A logging-formatting error appeared during startup, but the checkpoint loaded and all 157 test batches completed successfully.
+
+### Next evaluation actions
+
+1. Review and validate the PGD implementation, including random-start clipping and perturbation constraints.
+2. Re-evaluate clean and adversarial accuracy with a verified attack implementation and identical test examples.
+3. Save the attack configuration and results in a structured CSV file.
+4. Compare models only under matched training budgets, data fractions, and evaluation settings.
