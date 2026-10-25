@@ -155,6 +155,39 @@ The model is vulnerable to gradient-based adversarial attacks. However, its clea
 - Script: `eval_pgd.py`.
 - Results: `experiments/pgd_results.csv`.
 
+### Multi-Restart PGD-50 Evaluation
+
+**Experimental setup**
+- Dataset: CIFAR-10 test set (10,000 images).
+- Model: SimpleCNN clean baseline, trained for five epochs with random seed 42.
+- Device: NVIDIA GPU (`cuda`).
+- Attack: Untargeted Projected Gradient Descent (PGD).
+- Maximum perturbation: epsilon = 8/255.
+- Step size: alpha = 2/255.
+- Iterations per restart: 50.
+- Random restarts: 5.
+- Pixel range: [0, 1].
+
+**Results**
+
+| Evaluation | Test accuracy |
+|---|---:|
+| Clean images | 55.53% |
+| PGD-50, 5 random restarts | 2.42% |
+
+The multi-restart evaluation took approximately 4 minutes and 34 seconds on the available GPU.
+
+**Interpretation**
+
+Robust accuracy decreased from 2.54% in the single-start PGD-50 run with seed 42 to 2.42% with five random restarts. This is consistent with multiple restarts finding additional successful adversarial examples. The result indicates substantial vulnerability under the tested attack configuration, although the model's clean accuracy is also limited.
+
+These results are preliminary and use one trained model. They do not establish general conclusions about other architectures, training seeds, datasets, or compression methods.
+
+**Artifacts**
+- Script: `eval_pgd_restarts.py`.
+- Results: `experiments/pgd50_5restarts_results.csv`.
+- Related plots: `experiments/PGD adversarial accuracy by attack steps.png` and `experiments/PGD-50 accuracy by seed.png`.
+
 ### FGSM Adversarial Training and Model Comparison
 
 **Setup**

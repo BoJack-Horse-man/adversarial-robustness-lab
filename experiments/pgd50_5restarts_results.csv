@@ -1,0 +1,2 @@
+attack,epsilon,alpha,steps,restarts,clean_accuracy_percent,robust_accuracy_percent
+PGD,0.03137254901960784,0.00784313725490196,50,5,55.53,2.42
