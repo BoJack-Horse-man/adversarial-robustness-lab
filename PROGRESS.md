@@ -24,6 +24,45 @@
 - [x] Train a CIFAR-100 model using FGSM adversarial training.
 - [x] Evaluate FGSM and PGD robustness after adversarial training.
 
+
+### PGD-50 Multi-Restart Model Comparison - 2026-10-26
+
+**Status:** Completed; results are preliminary.
+
+**Dataset and evaluation**
+- Dataset: CIFAR-10 test set (10,000 images).
+- Models: baseline `SimpleCNN` and FGSM adversarially trained `SimpleCNN`.
+- Checkpoints: `checkpoints/simple_cnn.pth` and `checkpoints/simple_cnn_adv.pth`.
+- Attack: PGD-50 with five random restarts.
+- Perturbation budget: epsilon `8/255` (approximately `0.03137255`).
+- Step size: alpha `2/255` (approximately `0.00784314`).
+- Batch size: 64.
+- Device: CUDA.
+- Pixel range: `[0, 1]`.
+- Results file: `experiments/pgd50_5restarts_model_comparison.csv`.
+- Script: `compare_pgd50_models.py`.
+
+**Results**
+
+| Model | Clean accuracy | PGD-50 robust accuracy |
+|---|---:|---:|
+| Baseline CNN | 55.53% | 2.42% |
+| FGSM adversarially trained CNN | 45.88% | 27.35% |
+
+The adversarially trained model improved PGD-50 robust accuracy by 24.93 percentage points, while clean accuracy decreased by 9.65 percentage points compared with the baseline.
+
+**Interpretation and limitations**
+- Under this evaluation, FGSM adversarial training substantially improved the model's resistance to PGD-50 attacks.
+- The clean-accuracy reduction shows a trade-off between clean performance and adversarial robustness.
+- Results come from one training run per model. Multiple training seeds and further attack validation are needed before drawing strong conclusions.
+- The experiment evaluates adversarial robustness, but does not yet establish whether pruning or quantization can preserve robustness efficiently.
+
+**Next steps**
+1. Validate the evaluation protocol and compare results across multiple training seeds.
+2. Establish a controlled pruning baseline and measure clean accuracy, robust accuracy, sparsity, model size, and inference latency.
+3. Evaluate quantization separately.
+4. Compare compressed models with and without adversarial training under matched evaluation settings.
+
 ### Remaining
 - [ ] Study the HYDRA paper and implementation.
 - [ ] Reproduce a suitable HYDRA experiment.
