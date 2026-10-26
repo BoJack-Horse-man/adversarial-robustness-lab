@@ -13,9 +13,9 @@ The project investigates how neural networks respond to adversarial attacks and 
 - [x] Evaluate FGSM and PGD attacks
 - [x] Implement FGSM adversarial training
 - [x] Compare baseline and adversarially trained models
-- [ ] Prepare and evaluate CIFAR-100
-- [ ] Study the HYDRA paper and implementation
-- [ ] Reproduce a suitable HYDRA experiment
+- [x] Prepare and evaluate CIFAR-100
+- [x] Study the HYDRA paper and implementation
+- [x] Reproduce a suitable HYDRA experiment
 - [ ] Investigate pruning and robustness trade-offs
 - [ ] Identify a research question for further experiments
 
