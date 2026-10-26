@@ -543,3 +543,38 @@ Result files:
 3. Investigate pruning combined with adversarial training.
 4. Repeat key experiments across multiple training seeds before making general claims.
 5. Keep clean accuracy, robust accuracy, checkpoint size, and inference latency as separate evaluation metrics.
+
+### 2026-10-26: Latency Benchmark and Final Report Validation
+
+**Completed**
+- [x] Benchmark baseline and 50%-pruned SimpleCNN inference latency on CUDA.
+- [x] Validate CIFAR-100 clean, FGSM, and PGD-10 results against saved CSV files.
+- [x] Validate CIFAR-10 PGD-50 five-restart pruning comparison.
+- [x] Review the final research report figures and references.
+- [x] Add the CIFAR-100 FGSM adversarial-training result to `FINAL_RESEARCH_REPORT.md`.
+- [x] Commit and push the report update (`326bb2c`).
+
+**Latency benchmark results**
+
+| Batch size | Baseline latency per batch | Pruned latency per batch |
+|---|---:|---:|
+| 1 | 0.8415 ms | 0.8272 ms |
+| 64 | 5.9306 ms | 6.2054 ms |
+
+The pruned model was approximately 1.7% faster at batch size 1 and 4.6% slower at batch size 64. Each configuration was measured in a single benchmark run, so repeated measurements are needed before drawing firm performance conclusions.
+
+**Additional validated results**
+- CIFAR-100 PGD-10 accuracy: 2.33% baseline and 9.86% after FGSM adversarial training.
+- CIFAR-100 FGSM accuracy at epsilon = 8/255: 3.80% baseline and 10.33% after FGSM adversarial training.
+- CIFAR-100 clean accuracy: 24.61% baseline and 17.84% after FGSM adversarial training.
+- CIFAR-10 PGD-50 accuracy with five random restarts: 2.42% baseline and 2.32% after 50% pruning.
+
+**Current conclusion**
+
+TThe experiments show a clean-accuracy versus adversarial-robustness trade-off for the tested adversarial-training configuration. The pruning experiment did not demonstrate improved robustness or a consistent inference-speed benefit. These findings remain preliminary and require repeated measurements, multiple training seeds, and further attack validation.
+
+**Next steps**
+1. Review and validate the HYDRA PGD implementation.
+2. Repeat latency measurements to assess variability.
+3. Investigate additional pruning levels and pruning combined with adversarial training.
+4. Improve reproducibility with multiple training seeds.
