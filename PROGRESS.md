@@ -475,6 +475,52 @@ Top-1 accuracy decreased by 8.48 percentage points under this evaluation, approx
 3. Save the attack configuration and results in a structured CSV file.
 4. Compare models only under matched training budgets, data fractions, and evaluation settings.
 
+### HYDRA PGD Implementation Comparison - 2026-10-26
+
+**Status:** Full CIFAR-10 test-set comparison completed; findings are diagnostic and preliminary.
+
+**Configuration**
+- Dataset: CIFAR-10 test set (10,000 images).
+- Model: HYDRA subnet pretraining checkpoint.
+- Device: CUDA.
+- Attack: 10-step PGD.
+- Perturbation budget: epsilon = 8/255.
+- Step size: alpha = 2/255.
+- Batch size: 16.
+- Random seed: 2026.
+- Pixel range: [0, 1].
+- Both attack implementations used the same raw random-start images for each batch.
+- Results: `hydra_pgd_full_comparison_audit.csv`.
+- Script: `compare_hydra_pgd_full.py`.
+
+**Results**
+
+| Metric | Original HYDRA-style PGD | Corrected PGD |
+|---|---:|---:|
+| Clean accuracy | 17.97% | 17.97% |
+| Adversarial accuracy | 9.49% | 9.49% |
+| Maximum perturbation | 0.03137258 | 0.03137258 |
+
+- Both implementations processed all 10,000 test images.
+- Final adversarial pixels were within [0, 1], and all final values were finite.
+- All 625 batches contained some differences between the generated adversarial images.
+- Predictions differed on 8 images (0.08%).
+- Correct-versus-incorrect classification outcomes differed on 0 images.
+
+**Interpretation and limitations**
+
+The two implementations produced the same adversarial accuracy and the same classification correctness outcomes on this test set, despite producing slightly different adversarial images. Matching accuracy does not prove that the attacks are algorithmically identical or equally strong in every setting.
+
+The original HYDRA implementation does not clamp random-start pixels to the valid image range before its first gradient update. The corrected implementation handles the initial point differently. The maximum measured perturbation exceeded the nominal epsilon by approximately 2.8e-8 due to floating-point precision, which is negligible at this scale.
+
+The checkpoint's clean accuracy was only 17.97%, and it was trained in a limited pilot setup. These results are an implementation diagnostic, not a full reproduction of the HYDRA paper or evidence of general robustness.
+
+**Next steps**
+1. Review the comparison script and attack implementation details.
+2. Confirm the evaluation protocol and document any remaining differences.
+3. Use a verified, consistent attack implementation for future controlled model comparisons.
+4. Preserve the original results CSV and use the audit CSV as a separate artifact.
+
 ### Global Magnitude Pruning Baseline - 2026-10-26
 
 **Status:** Initial pruning and robustness comparison completed; results are preliminary.
@@ -571,7 +617,7 @@ The pruned model was approximately 1.7% faster at batch size 1 and 4.6% slower a
 
 **Current conclusion**
 
-TThe experiments show a clean-accuracy versus adversarial-robustness trade-off for the tested adversarial-training configuration. The pruning experiment did not demonstrate improved robustness or a consistent inference-speed benefit. These findings remain preliminary and require repeated measurements, multiple training seeds, and further attack validation.
+The experiments show a clean-accuracy versus adversarial-robustness trade-off for the tested adversarial-training configuration. The pruning experiment did not demonstrate improved robustness or a consistent inference-speed benefit. These findings remain preliminary and require repeated measurements, multiple training seeds, and further attack validation.
 
 **Next steps**
 1. Review and validate the HYDRA PGD implementation.

@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -232,7 +232,7 @@ def main():
         ("pgd_steps", NUM_STEPS),
     ]
 
-    output_path = Path("hydra_pgd_full_comparison.csv")
+    output_path = Path("hydra_pgd_full_comparison_audit.csv")
     with output_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["metric", "value"])
