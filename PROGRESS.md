@@ -474,3 +474,72 @@ Top-1 accuracy decreased by 8.48 percentage points under this evaluation, approx
 2. Re-evaluate clean and adversarial accuracy with a verified attack implementation and identical test examples.
 3. Save the attack configuration and results in a structured CSV file.
 4. Compare models only under matched training budgets, data fractions, and evaluation settings.
+
+### Global Magnitude Pruning Baseline - 2026-10-26
+
+**Status:** Initial pruning and robustness comparison completed; results are preliminary.
+
+**Objective:** Measure the effect of 50% global unstructured magnitude pruning on clean accuracy and adversarial robustness of the existing SimpleCNN baseline.
+
+#### Configuration
+
+- Dataset: CIFAR-10 test set (10,000 images).
+- Architecture: SimpleCNN, 94,538 total parameters.
+- Original checkpoint: `checkpoints/simple_cnn.pth`.
+- Pruned checkpoint: `checkpoints/simple_cnn_pruned_50.pth`.
+- Pruning method: global unstructured L1 (magnitude) pruning.
+- Target weight sparsity: 50%.
+- Eligible weights: convolutional and linear layer weights; biases were not pruned.
+- Pruning was applied to the existing checkpoint without retraining.
+- Preprocessing: `transforms.ToTensor()`, with pixel values in `[0,1]`.
+- Clean evaluation batch size: 64.
+- Adversarial evaluation: PGD-50, five random restarts.
+- Perturbation budget: epsilon `8/255`.
+- Step size: `2/255`.
+- Device: CUDA.
+
+#### Verified sparsity and checkpoint size
+
+| Metric | Result |
+|---|---:|
+| Total model parameters | 94,538 |
+| Eligible weights | 94,304 |
+| Zero eligible weights after pruning | 47,152 |
+| Measured weight sparsity | 50.00% |
+| Original checkpoint size | 381,668 bytes |
+| Pruned checkpoint size | 381,788 bytes |
+
+The pruned checkpoint was 120 bytes larger than the original. The state dictionary stores dense tensors, so setting weights to zero did not reduce storage size.
+
+#### Results
+
+| Metric | Baseline | 50% pruned |
+|---|---:|---:|
+| Clean accuracy | 55.53% | 53.82% |
+| PGD-50 robust accuracy, five restarts | 2.42% | 2.32% |
+
+- Clean accuracy change: -1.71 percentage points.
+- PGD-50 robust accuracy change: -0.10 percentage points.
+
+Result files:
+- `experiments/pruning_baseline_results.csv`
+- `experiments/pruning_clean_comparison.csv`
+- `experiments/pruned_pgd50_5restarts_comparison.csv`
+
+#### Interpretation and limitations
+
+- The pruned model retained most of its baseline clean accuracy, with a decrease of 1.71 percentage points.
+- Robust accuracy was nearly unchanged in this single comparison, decreasing by 0.10 percentage points.
+- These results do not show a robustness improvement from pruning.
+- Only one baseline checkpoint and one pruning level have been evaluated; repeated training seeds and additional sparsity levels are needed.
+- Actual inference latency and peak memory usage have not been measured.
+- Unstructured weight sparsity does not automatically reduce dense checkpoint storage or accelerate ordinary dense inference.
+- The evaluation uses a fixed PGD configuration. Further attack validation and evaluation across multiple seeds would strengthen the conclusions.
+
+#### Next steps
+
+1. Measure baseline and pruned inference latency using the same device, batches, warm-up procedure, and timing method.
+2. Evaluate additional pruning levels, such as 20%, 50%, and 70%, with clearly recorded configurations.
+3. Investigate pruning combined with adversarial training.
+4. Repeat key experiments across multiple training seeds before making general claims.
+5. Keep clean accuracy, robust accuracy, checkpoint size, and inference latency as separate evaluation metrics.

@@ -1,0 +1,2 @@
+model,target_sparsity_percent,actual_weight_sparsity_percent,zero_weights,total_prunable_weights,total_parameters,source_checkpoint_bytes,pruned_checkpoint_bytes,device
+baseline_global_magnitude_pruned,50.00,50.00,47152,94304,94538,381668,381788,cuda

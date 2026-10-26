@@ -1,0 +1,3 @@
+model,checkpoint,test_images,clean_accuracy_percent
+baseline,checkpoints\simple_cnn.pth,10000,55.53
+pruned_50_percent,checkpoints\simple_cnn_pruned_50.pth,10000,53.82
