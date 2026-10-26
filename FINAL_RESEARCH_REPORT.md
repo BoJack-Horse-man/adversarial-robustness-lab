@@ -13,7 +13,7 @@ The baseline model achieved 55.53% clean test accuracy. Under PGD-50 evaluation 
 
 ## 1. Introduction
 
-Deep neural networks are used in image classification and many other machine-learning applications. However, small, carefully constructed changes to an input can cause a model to produce incorrect predictions. This behavior creates an important reliability concern for systems that use neural networks.
+Deep neural networks are used in image classification and many other machine-learning applications. However, small, carefully constructed changes to an input can cause a model to produce incorrect predictions. This behavior creates an important reliability concern for systems that use neural networks [1, 2].
 
 At the same time, neural networks can require substantial computational resources. Model compression techniques, including pruning and quantization, aim to reduce model complexity or deployment costs. An important research question is whether compression affects a model's resistance to adversarial attacks.
 
@@ -51,9 +51,9 @@ The short training duration and resulting accuracy should be considered when int
 Two gradient-based attacks were used:
 
 - **FGSM:** A single-step attack that perturbs an input in the direction determined by the sign of the loss gradient.
-- **PGD:** An iterative attack that repeatedly updates the input and projects the perturbation back into the allowed range.
+- **PGD:** An iterative attack that repeatedly updates the input and projects the perturbation back into the allowed range. 
 
-For the principal PGD-50 pruning comparison, the maximum perturbation was ε = 8/255, the step size was α = 2/255, and five random restarts were used. Perturbed pixel values were constrained to [0, 1].
+For the principal PGD-50 pruning comparison, the maximum perturbation was ε = 8/255, the step size was α = 2/255, and five random restarts were used. Perturbed pixel values were constrained to [1, 2].
 
 ### 3.4 Adversarial training
 
@@ -63,7 +63,7 @@ A separate model was trained using FGSM-generated adversarial examples with a tr
 
 Global unstructured magnitude pruning was applied to the weights of convolutional and linear layers. Biases were excluded. The 50% pruning configuration targeted half of the eligible weights, and the resulting zeros were made permanent before the pruned checkpoint was saved.
 
-The baseline checkpoint was preserved.
+The baseline checkpoint was preserved  [3].
 
 ### 3.6 Inference latency
 
@@ -197,3 +197,10 @@ The project repository contains the training and evaluation scripts, model check
 - `PRUNING_LATENCY_REPORT.md`
 
 The results should be interpreted alongside the recorded configurations and limitations. Before formal submission, verify all figures against the corresponding CSV files and ensure the final report follows the supervisor's required format.
+## References
+
+[1] I. J. Goodfellow, J. Shlens, and C. Szegedy, “Explaining and Harnessing Adversarial Examples,” *International Conference on Learning Representations (ICLR)*, 2015. https://arxiv.org/abs/1412.6572
+
+[2] A. Madry, A. Makelov, L. Schmidt, D. Tsipras, and A. Vladu, “Towards Deep Learning Models Resistant to Adversarial Attacks,” *International Conference on Learning Representations (ICLR)*, 2018. https://arxiv.org/abs/1706.06083
+
+[3] S. Han, H. Mao, and W. J. Dally, “Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding,” *International Conference on Learning Representations (ICLR)*, 2016. https://arxiv.org/abs/1510.00149
