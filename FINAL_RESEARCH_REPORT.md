@@ -132,7 +132,7 @@ The experiment does not demonstrate a consistent inference-speed benefit from un
 
 ### 4.5 Additional CIFAR-100 experiments
 
-Additional scripts and result files in the project cover CIFAR-100 baseline and adversarial-training experiments. The recorded results show that FGSM adversarial training increased PGD-10 accuracy from 2.33% to 9.86%, while clean accuracy decreased from 24.61% to 17.84%.
+Additional scripts and result files in the project cover CIFAR-100 baseline and adversarial-training experiments. The recorded results show that FGSM adversarial training increased PGD-10 accuracy from 2.33% to 9.86% and FGSM accuracy at epsilon = 8/255 from 3.80% to 10.33%. However, clean accuracy decreased from 24.61% to 17.84%.
 
 These results provide additional preliminary evidence of a clean-accuracy versus adversarial-robustness trade-off. They should be presented separately from the CIFAR-10 pruning comparison because the dataset and experimental configuration differ.
 
