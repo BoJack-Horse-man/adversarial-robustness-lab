@@ -1,0 +1,2 @@
+attack,epsilon,alpha,steps,random_start,clean_accuracy_percent,adversarial_accuracy_percent
+PGD,0.03137254901960784,0.00784313725490196,20,True,55.53,2.79
