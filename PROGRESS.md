@@ -3,7 +3,7 @@
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
 **Status:** Initial experiments completed; research ongoing  
-**Last updated:** 2026-10-25
+**Last updated:** 2026-10-30
 
 ## 1. Current Position
 
