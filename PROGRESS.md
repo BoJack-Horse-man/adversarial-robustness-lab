@@ -26,6 +26,9 @@
 - [x] Validate custom FGSM/PGD implementations against torchattacks for the tested CIFAR-10 ResNet-18 settings.
 - [x] Run 30%, 50%, and 70% global magnitude pruning on the FGSM adversarially trained SimpleCNN and evaluate clean and PGD-10 accuracy.
 - [x] Plot clean and PGD-10 accuracy against measured weight sparsity.
+- [x] Fine-tune 30%, 50%, and 70% pruned adversarially trained SimpleCNN models while preserving pruning masks.
+- [x] Compare clean accuracy, PGD-10 accuracy, and attack success rate before and after fine-tuning.
+- [x] Generate and verify before-and-after comparison plots for clean accuracy, PGD-10 accuracy, and ASR.
 
 
 ### PGD-50 Multi-Restart Model Comparison - 2026-10-26
@@ -70,7 +73,8 @@ The adversarially trained model improved PGD-50 robust accuracy by 24.93 percent
 - [ ] Study the HYDRA paper and implementation.
 - [ ] Reproduce a suitable HYDRA experiment.
 - [x] Run an initial global magnitude-pruning and robustness comparison on adversarially trained SimpleCNN.
-- [ ] Investigate pruning and robustness trade-offs further with fine-tuning and multiple seeds.
+- [x] Investigate the initial pruning and fine-tuning trade-off using one seed.
+- [ ] Repeat pruning and fine-tuning experiments across multiple training seeds.
 - [ ] Improve experimental reproducibility with multiple random seeds.
 - [ ] Measure model size, runtime, and computational efficiency.
 
@@ -703,3 +707,86 @@ These preliminary results suggest that this FGSM adversarially trained SimpleCNN
 3. Repeat training and pruning across multiple random seeds.
 4. Evaluate additional attack settings under a consistent protocol.
 5. Measure checkpoint size, inference latency, and memory usage separately from weight sparsity.
+
+### Adversarially Trained SimpleCNN: Pruning and Fine-Tuning Comparison - 2026-11-01
+
+**Status:** Fine-tuning and before-and-after evaluation completed; results are preliminary.
+
+**Objective**
+
+Determine whether short FGSM adversarial fine-tuning can recover clean and adversarial accuracy after global magnitude pruning of the FGSM adversarially trained SimpleCNN.
+
+**Fine-tuning configuration**
+- Dataset: CIFAR-10 training set, split into 45,000 training images and 5,000 validation images.
+- Test set: CIFAR-10 test set (10,000 images), reserved for final comparison.
+- Models: 30%, 50%, and 70% pruned adversarially trained SimpleCNN checkpoints.
+- Fine-tuning method: FGSM adversarial training.
+- Perturbation budget: epsilon = 8/255.
+- Optimizer: Adam.
+- Learning rate: 0.0001.
+- Batch size: 64.
+- Fine-tuning duration: 5 epochs.
+- Random seed for the data split: 42.
+- Original pruning masks were recovered from zero-valued weights. Gradient masking and post-optimizer weight masking were used to preserve the pruned connections.
+- All three fine-tuned checkpoints completed training, and the original pruning zeros were preserved.
+- Script: `finetune_pruned_models.py`.
+- Validation history: `experiments/pruned_finetuning_history.csv`.
+
+**Final evaluation configuration**
+- Dataset: CIFAR-10 test set (10,000 images).
+- Models: unpruned control, each pruned model, and each corresponding fine-tuned model.
+- Attack: untargeted PGD-10 with random start.
+- Perturbation budget: epsilon = 8/255.
+- Step size: alpha = 2/255.
+- Steps: 10.
+- The same evaluation protocol was used for all seven models.
+- Results: `experiments/adv_pruning_finetuning_comparison.csv`.
+- Evaluation script: `eval_adv_pruning_finetune_comparison.py`.
+- Plotting script: `plot_adv_pruning_finetuning.py`.
+
+**Final test-set results**
+
+| Model | Sparsity | Clean accuracy | PGD-10 accuracy | ASR |
+|---|---:|---:|---:|---:|
+| Control | 0% | 45.88% | 27.66% | 40.26% |
+| Pruned | 30% | 45.47% | 27.55% | 39.78% |
+| Fine-tuned | 30% | 47.32% | 28.30% | 40.43% |
+| Pruned | 50% | 45.30% | 27.44% | 39.78% |
+| Fine-tuned | 50% | 47.59% | 28.37% | 40.62% |
+| Pruned | 70% | 44.87% | 27.24% | 39.98% |
+| Fine-tuned | 70% | 47.40% | 27.97% | 41.18% |
+
+ASR is calculated among test images that were correctly classified before the attack. PGD-10 accuracy is calculated over the full test set.
+
+**Changes after fine-tuning**
+
+| Sparsity | Clean accuracy change | PGD-10 accuracy change | ASR change |
+|---|---:|---:|---:|
+| 30% | +1.85 pp | +0.75 pp | +0.65 pp |
+| 50% | +2.29 pp | +0.93 pp | +0.84 pp |
+| 70% | +2.53 pp | +0.73 pp | +1.20 pp |
+
+**Main observations**
+- Fine-tuning increased clean accuracy at all three pruning levels.
+- PGD-10 accuracy also increased slightly at all three pruning levels.
+- ASR increased slightly after fine-tuning at every pruning level. This does not contradict the PGD-10 accuracy increase because the two metrics use different denominators.
+- The 50% pruned and fine-tuned model had the highest clean accuracy (47.59%) and PGD-10 accuracy (28.37%) among the tested pruned configurations.
+- The 70% pruned and fine-tuned model retained competitive accuracy, but had the highest ASR (41.18%) among the three fine-tuned models.
+
+**Figures**
+- `experiments/clean_accuracy_before_after.png`.
+- `experiments/pgd10_accuracy_before_after.png`.
+- `experiments/asr_before_after.png`.
+
+All three figures were generated and verified on GitHub. Their plotted values match the comparison CSV.
+
+**Interpretation and limitations**
+
+For this single FGSM adversarially trained SimpleCNN checkpoint, five epochs of mask-preserving FGSM fine-tuning recovered clean accuracy and produced a small increase in PGD-10 accuracy after pruning. However, ASR also increased slightly. These results therefore do not establish an overall improvement in adversarial robustness. The experiment uses one training seed, one architecture, one dataset, and one PGD-10 configuration. Multi-restart and stronger attack evaluation, repeated training seeds, and measurements of checkpoint size, inference latency, and memory use are still needed.
+
+**Next steps**
+1. Repeat the pruning and fine-tuning experiment with multiple independent training seeds.
+2. Evaluate the models with stronger PGD settings and multiple random restarts.
+3. Measure checkpoint size, inference latency, and memory usage.
+4. Compare the results with a standard architecture, prioritizing the CIFAR-10 ResNet-18 research track.
+
