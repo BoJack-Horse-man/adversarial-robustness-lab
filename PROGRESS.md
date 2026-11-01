@@ -3,7 +3,7 @@
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
 **Status:** Initial experiments completed; research ongoing  
-**Last updated:** 2026-10-25
+**Last updated:** 2026-11-01
 
 ## 1. Current Position
 
@@ -23,6 +23,9 @@
 - [x] Implement and evaluate FGSM and PGD attacks on CIFAR-100.
 - [x] Train a CIFAR-100 model using FGSM adversarial training.
 - [x] Evaluate FGSM and PGD robustness after adversarial training.
+- [x] Validate custom FGSM/PGD implementations against torchattacks for the tested CIFAR-10 ResNet-18 settings.
+- [x] Run 30%, 50%, and 70% global magnitude pruning on the FGSM adversarially trained SimpleCNN and evaluate clean and PGD-10 accuracy.
+- [x] Plot clean and PGD-10 accuracy against measured weight sparsity.
 
 
 ### PGD-50 Multi-Restart Model Comparison - 2026-10-26
@@ -66,7 +69,8 @@ The adversarially trained model improved PGD-50 robust accuracy by 24.93 percent
 ### Remaining
 - [ ] Study the HYDRA paper and implementation.
 - [ ] Reproduce a suitable HYDRA experiment.
-- [ ] Investigate pruning and robustness trade-offs.
+- [x] Run an initial global magnitude-pruning and robustness comparison on adversarially trained SimpleCNN.
+- [ ] Investigate pruning and robustness trade-offs further with fine-tuning and multiple seeds.
 - [ ] Improve experimental reproducibility with multiple random seeds.
 - [ ] Measure model size, runtime, and computational efficiency.
 
@@ -624,3 +628,77 @@ The experiments show a clean-accuracy versus adversarial-robustness trade-off fo
 2. Repeat latency measurements to assess variability.
 3. Investigate additional pruning levels and pruning combined with adversarial training.
 4. Improve reproducibility with multiple training seeds.
+
+### Adversarially Trained SimpleCNN: Global Magnitude Pruning - 2026-11-01
+
+**Status:** Initial pruning and PGD-10 evaluation completed; results are preliminary.
+
+**Objective**
+
+Measure the effect of global unstructured magnitude pruning on clean accuracy and PGD-10 robustness of the existing FGSM adversarially trained SimpleCNN.
+
+**Configuration**
+- Dataset: CIFAR-10 test set (10,000 images).
+- Architecture: SimpleCNN; 94,538 total parameters.
+- Source checkpoint: `checkpoints/simple_cnn_adv.pth`.
+- Training provenance: FGSM adversarial training for five epochs, epsilon = 8/255, batch size 64, Adam learning rate 0.001, random seed 42.
+- Pruning method: global unstructured L1 magnitude pruning over convolutional and linear layer weights.
+- Target sparsity levels: 30%, 50%, and 70%, plus the unpruned 0% control.
+- Pruning was applied directly to the trained checkpoint without fine-tuning.
+- Pruning masks were permanently applied using `prune.remove()`.
+- Evaluation preprocessing: `transforms.ToTensor()`, with pixel values in [0, 1].
+- Evaluation batch size: 64.
+- Attack: untargeted PGD-10 with random start.
+- Perturbation budget: epsilon = 8/255.
+- Step size: alpha = 2/255.
+- Device: CUDA.
+- Random seed reset to 42 before each model evaluation.
+- Pruning script: `prune_adversarial_model.py`.
+- Evaluation script: `eval_adv_pruning.py`.
+- Plotting script: `plot_adv_pruning_results.py`.
+
+**Measured sparsity**
+
+| Model | Target sparsity | Actual weight sparsity |
+|---|---:|---:|
+| Adversarially trained control | 0% | 0.0000% |
+| Pruned | 30% | 29.9998% |
+| Pruned | 50% | 50.0000% |
+| Pruned | 70% | 70.0002% |
+
+The eligible convolutional and linear weights totalled 94,304.
+
+**Clean and adversarial evaluation results**
+
+| Model | Actual sparsity | Clean accuracy | PGD-10 accuracy | ASR |
+|---|---:|---:|---:|---:|
+| Adversarially trained control | 0.0000% | 45.88% | 27.66% | 40.26% |
+| 30% pruned | 29.9998% | 45.47% | 27.55% | 39.78% |
+| 50% pruned | 50.0000% | 45.30% | 27.44% | 39.78% |
+| 70% pruned | 70.0002% | 44.87% | 27.24% | 39.98% |
+
+ASR is the percentage of initially correctly classified test images that were misclassified after the attack.
+
+**Main observations**
+- At 70% weight sparsity, clean accuracy decreased by 1.01 percentage points compared with the unpruned control.
+- PGD-10 accuracy decreased by 0.42 percentage points between the control and the 70% pruned model.
+- ASR remained close to 40%, without a consistent trend as sparsity increased.
+- In this experiment, the pruned models retained most of the control model's measured clean and PGD-10 performance.
+- The results do not demonstrate that pruning improves adversarial robustness.
+
+**Artifacts**
+- Pruning records: `experiments/adv_pruning_comparison.csv`.
+- Evaluation results: `experiments/adv_pruning_evaluation.csv`.
+- Figure: `experiments/adv_pruning_accuracy.png`.
+- Checkpoints: `checkpoints/simple_cnn_adv_pruned_30.pth`, `checkpoints/simple_cnn_adv_pruned_50.pth`, and `checkpoints/simple_cnn_adv_pruned_70.pth`.
+
+**Interpretation and limitations**
+
+These preliminary results suggest that this FGSM adversarially trained SimpleCNN tolerated up to 70% global unstructured weight sparsity with relatively small changes in clean and PGD-10 accuracy. The experiment used one training checkpoint, one random seed, one dataset, and one PGD configuration. The pruned models were not fine-tuned. This experiment did not establish practical reductions in checkpoint storage, inference latency, or memory use. Results should not be generalized beyond the tested settings.
+
+**Next steps**
+1. Preserve these immediate post-pruning results as the baseline for a separate fine-tuning experiment.
+2. Compare pruned models before and after fine-tuning.
+3. Repeat training and pruning across multiple random seeds.
+4. Evaluate additional attack settings under a consistent protocol.
+5. Measure checkpoint size, inference latency, and memory usage separately from weight sparsity.
