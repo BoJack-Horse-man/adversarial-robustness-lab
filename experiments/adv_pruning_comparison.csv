@@ -1,0 +1,5 @@
+model,target_sparsity_percent,actual_sparsity_percent,zero_weights,total_prunable_weights,checkpoint,checkpoint_bytes
+adv_trained_control,0,0.0000,0,94304,checkpoints\simple_cnn_adv.pth,381716
+adv_trained_pruned_30,30,29.9998,28291,94304,checkpoints\simple_cnn_adv_pruned_30.pth,381900
+adv_trained_pruned_50,50,50.0000,47152,94304,checkpoints\simple_cnn_adv_pruned_50.pth,381900
+adv_trained_pruned_70,70,70.0002,66013,94304,checkpoints\simple_cnn_adv_pruned_70.pth,381900
