@@ -790,3 +790,75 @@ For this single FGSM adversarially trained SimpleCNN checkpoint, five epochs of 
 3. Measure checkpoint size, inference latency, and memory usage.
 4. Compare the results with a standard architecture, prioritizing the CIFAR-10 ResNet-18 research track.
 
+## ResNet-18: FGSM Adversarial Fine-Tuning and Evaluation - 2026-11-01
+
+### Objective
+Investigate whether FGSM adversarial fine-tuning improves the adversarial robustness of the CIFAR-10 ResNet-18 baseline.
+
+### Training configuration
+- Architecture: CIFAR-10 adapted ResNet-18
+- Starting checkpoint: `checkpoints/resnet18_cifar10_best.pth`
+- Dataset: CIFAR-10
+- Training/validation split: 45,000 / 5,000 images
+- Test set: 10,000 images, held out for final evaluation
+- Attack used during training: FGSM
+- Perturbation budget: epsilon = 8/255
+- Batch size: 32
+- Epochs: 10
+- Optimizer: SGD
+- Initial learning rate: 0.001
+- Final learning rate: 0.00001
+- Momentum: 0.9
+- Weight decay: 0.0005
+- Random seed: 42
+- Best checkpoint selected using validation clean accuracy
+
+### Training results
+- Best validation clean accuracy: 77.24%
+- Final test clean accuracy: 73.50%
+- Final epoch adversarial training accuracy: 50.33%
+- Final epoch training loss: 1.2858
+
+### Baseline vs FGSM fine-tuned ResNet-18
+
+| Evaluation | Baseline | FGSM fine-tuned |
+|---|---:|---:|
+| Clean accuracy | 89.26% | 73.50% |
+| FGSM 2/255 | 22.46% | 65.27% |
+| FGSM 4/255 | 10.31% | 57.36% |
+| FGSM 8/255 | 5.63% | 42.15% |
+| PGD-10 8/255 | 0.00% | 36.73% |
+
+### Attack success rate
+
+| Attack | Baseline ASR | FGSM fine-tuned ASR |
+|---|---:|---:|
+| FGSM 2/255 | 74.84% | 11.20% |
+| FGSM 4/255 | 88.46% | 21.97% |
+| FGSM 8/255 | 93.73% | 42.65% |
+| PGD-10 8/255 | 100.00% | 50.03% |
+
+### Interpretation
+FGSM adversarial fine-tuning substantially improved adversarial accuracy under all tested attack settings. PGD-10 accuracy increased from 0.00% to 36.73%, while its attack success rate decreased from 100.00% to 50.03%.
+
+However, clean accuracy decreased by 15.76 percentage points, from 89.26% to 73.50%. This indicates a trade-off between clean accuracy and adversarial robustness.
+
+These results provide preliminary evidence that FGSM adversarial fine-tuning improves robustness, including against the tested iterative PGD attack. Stronger attacks and multiple random restarts are still needed.
+
+### Limitations
+- Only one random seed and one model checkpoint were evaluated.
+- Only PGD-10 with one random start was tested.
+- No multi-restart or stronger iterative attack evaluation has been conducted.
+- The original baseline checkpoint was selected using test accuracy during training, whereas the fine-tuned checkpoint was selected using validation accuracy. This difference must be considered when interpreting the comparison.
+- The experiment does not establish robustness against adaptive or other attack types.
+
+### Saved artifacts
+- `train_resnet18_adversarial.py`
+- `eval_resnet18_fgsm_adv_comparison.py`
+- `checkpoints/resnet18_cifar10_fgsm_adv.pth`
+- `experiments/resnet18_fgsm_adv_history.csv`
+- `experiments/resnet18_fgsm_adv_result.txt`
+- `experiments/resnet18_fgsm_adv_comparison.csv`
+
+### Status
+FGSM adversarial fine-tuning and baseline comparison completed. Stronger robustness evaluation remains.
