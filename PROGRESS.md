@@ -327,7 +327,7 @@ Dataset: CIFAR-100 test set (10,000 images; 100 classes).
 - Important experiments have not yet been repeated across multiple random seeds.
 - The CIFAR-100 results are preliminary and need validation with longer training runs and multiple seeds.
 - PGD evaluation should be further checked for reproducibility, attack strength, and possible evaluation pitfalls.
-- Pruning and quantization have not yet been implemented.
+- Initial global magnitude-pruning experiments have been completed on baseline and FGSM adversarially trained SimpleCNN. Fine-tuning, multi-seed validation, and quantization remain outstanding.
 - HYDRA diagnostics have been performed, but a full research experiment has not been reproduced.
 - Model size, inference latency, and computational savings have not yet been measured.
 - The current results do not yet establish the trade-off between model compression and adversarial robustness.
@@ -628,6 +628,7 @@ The experiments show a clean-accuracy versus adversarial-robustness trade-off fo
 2. Repeat latency measurements to assess variability.
 3. Investigate additional pruning levels and pruning combined with adversarial training.
 4. Improve reproducibility with multiple training seeds.
+
 
 ### Adversarially Trained SimpleCNN: Global Magnitude Pruning - 2026-11-01
 
