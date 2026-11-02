@@ -910,3 +910,89 @@ Cumulative ASR combines successful attacks across all five restarts using a per-
 ### Files
 - Script: `eval_resnet18_pgd50_multirestart.py`
 - Results: `experiments/resnet18_pgd50_multirestart.csv`
+
+
+## ResNet-18: Magnitude Pruning of FGSM Adversarially Trained Model - 2026-11-02
+
+### Objective
+Investigate how global unstructured magnitude pruning affects the clean accuracy and adversarial robustness of an FGSM adversarially trained CIFAR-10 ResNet-18.
+
+### Configuration
+- Dataset: CIFAR-10 test set (10,000 images)
+- Starting checkpoint: `checkpoints/resnet18_cifar10_fgsm_adv.pth`
+- Architecture: CIFAR-adapted ResNet-18
+- Pruning method: Global unstructured L1 magnitude pruning
+- Prunable layers: Conv2d and Linear weights
+- Pruning ratios: 30%, 50%, 70%
+- Models: Original control and three independently pruned models
+- Device: NVIDIA GeForce GTX 1050
+- Evaluation batch size: 64
+- Random seed: 42
+
+### Verified sparsity
+
+| Model | Target sparsity | Actual sparsity |
+|---|---:|---:|
+| Control | 0% | 0% |
+| Pruned 30% | 30% | 30.00% |
+| Pruned 50% | 50% | 50.00% |
+| Pruned 70% | 70% | 70.00% |
+
+The original checkpoint was independently loaded for each pruning ratio. Pruning masks were removed before saving, leaving zero-valued weights in dense tensors.
+
+### Evaluation configuration
+- FGSM epsilon: 2/255, 4/255, 8/255
+- PGD epsilon: 8/255
+- PGD step size: 2/255
+- PGD steps: 10
+- PGD random start: Enabled
+- Metrics: Clean accuracy, adversarial accuracy, attack success rate (ASR)
+
+### Clean and adversarial accuracy
+
+| Model | Sparsity | Clean | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD-10 8/255 |
+|---|---:|---:|---:|---:|---:|---:|
+| Control | 0% | 73.50% | 65.27% | 57.36% | 42.15% | 36.73% |
+| Pruned 30% | 30% | 73.44% | 65.48% | 57.33% | 42.23% | 36.69% |
+| Pruned 50% | 50% | 72.43% | 64.85% | 57.07% | 42.01% | 36.99% |
+| Pruned 70% | 70% | 61.50% | 53.70% | 46.81% | 33.80% | 30.57% |
+
+### Attack success rate
+
+| Model | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD-10 8/255 |
+|---|---:|---:|---:|---:|
+| Control | 11.20% | 21.97% | 42.65% | 50.03% |
+| Pruned 30% | 10.85% | 21.95% | 42.50% | 50.04% |
+| Pruned 50% | 10.48% | 21.23% | 42.01% | 48.94% |
+| Pruned 70% | 12.70% | 23.92% | 45.06% | 50.31% |
+
+ASR is calculated among samples that were correctly classified before the attack.
+
+### Observations
+- 30% pruning had almost no effect on clean or adversarial accuracy compared with the control.
+- 50% pruning caused a 1.07 percentage-point decrease in clean accuracy. PGD-10 accuracy was slightly higher than the control, but the difference was small.
+- 70% pruning reduced clean accuracy by 12.00 percentage points and PGD-10 accuracy by 6.16 percentage points.
+- The results do not show a consistent improvement in adversarial robustness as sparsity increases.
+- The 70% pruned model had the highest PGD-10 ASR at 50.31%, while the 50% model had the lowest at 48.94%.
+
+### Limitations
+- Only one trained checkpoint and one random seed were evaluated.
+- Only one PGD configuration was tested: 10 steps, epsilon 8/255, and step size 2/255.
+- No multi-restart PGD evaluation was conducted for these pruned models.
+- The pruned models contain dense tensors with zero-valued weights. Their checkpoint file sizes remained unchanged, so actual storage or inference-speed improvements have not been demonstrated.
+- No fine-tuning after ResNet-18 pruning was conducted in this experiment.
+- Results do not establish robustness against adaptive or other attack types.
+
+### Saved artifacts
+- Pruning script: `prune_resnet18_adv.py`
+- Evaluation script: `eval_resnet18_adv_pruning.py`
+- Sparsity results: `experiments/resnet18_adv_pruning_sparsity.csv`
+- Accuracy and ASR results: `experiments/resnet18_adv_pruning_comparison.csv`
+- Control checkpoint: `checkpoints/resnet18_cifar10_fgsm_adv.pth`
+- Pruned checkpoints:
+  - `checkpoints/resnet18_cifar10_fgsm_adv_pruned_30.pth`
+  - `checkpoints/resnet18_cifar10_fgsm_adv_pruned_50.pth`
+  - `checkpoints/resnet18_cifar10_fgsm_adv_pruned_70.pth`
+
+### Status
+ResNet-18 magnitude pruning and FGSM/PGD-10 evaluation completed. Further work is needed to investigate fine-tuning after pruning, multi-restart robustness, and actual model compression or inference efficiency.

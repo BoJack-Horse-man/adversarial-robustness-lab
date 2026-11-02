@@ -1,0 +1,4 @@
+target_sparsity,actual_sparsity,zero_weights,total_prunable_weights,checkpoint
+30.0,30.000003582832214,3349306,11164352,checkpoints\resnet18_cifar10_fgsm_adv_pruned_30.pth
+50.0,50.0,5582176,11164352,checkpoints\resnet18_cifar10_fgsm_adv_pruned_50.pth
+70.0,69.99999641716778,7815046,11164352,checkpoints\resnet18_cifar10_fgsm_adv_pruned_70.pth
