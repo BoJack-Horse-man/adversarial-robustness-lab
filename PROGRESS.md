@@ -996,3 +996,123 @@ ASR is calculated among samples that were correctly classified before the attack
 
 ### Status
 ResNet-18 magnitude pruning and FGSM/PGD-10 evaluation completed. Further work is needed to investigate fine-tuning after pruning, multi-restart robustness, and actual model compression or inference efficiency.
+
+## ResNet-18: Fine-Tuning After Magnitude Pruning - 2026-11-03
+
+**Status:** Fine-tuning and comparative evaluation completed; results are preliminary.
+
+### Objective
+
+Investigate whether FGSM adversarial fine-tuning can recover clean accuracy and adversarial performance after global magnitude pruning of an FGSM adversarially trained CIFAR-10 ResNet-18.
+
+### Fine-tuning configuration
+
+- Dataset: CIFAR-10.
+- Training/validation split: 45,000 / 5,000 images.
+- Test set: 10,000 images, reserved for final evaluation.
+- Starting checkpoints: ResNet-18 models pruned at 30%, 50%, and 70%.
+- Fine-tuning method: FGSM adversarial training.
+- Perturbation budget: epsilon = 8/255.
+- Batch size: 32.
+- Epochs: 10.
+- Optimizer: SGD.
+- Initial learning rate: 0.001.
+- Momentum: 0.9.
+- Weight decay: 0.0005.
+- Learning-rate scheduler: MultiStepLR, milestones at epochs 6 and 8, gamma = 0.1.
+- Random seed: 42.
+- Pruning masks were reconstructed from zero-valued weights. Gradients were masked, and pruning zeros were restored after optimizer updates.
+- Best checkpoints were selected using validation clean accuracy.
+
+### Training results
+
+| Pruning ratio | Best validation accuracy | Final measured sparsity |
+|---|---:|---:|
+| 30% | 78.86% | 30.00% |
+| 50% | 78.96% | 50.00% |
+| 70% | 78.70% | 70.00% |
+
+### Evaluation configuration
+
+- Dataset: CIFAR-10 test set (10,000 images).
+- Models: unpruned control, three pruned models, and three fine-tuned models.
+- FGSM epsilon: 2/255, 4/255, and 8/255.
+- PGD epsilon: 8/255.
+- PGD step size: 2/255.
+- PGD steps: 10.
+- PGD random start: enabled.
+- PGD restarts: one.
+- Metrics: clean accuracy, adversarial accuracy, and attack success rate (ASR).
+- ASR was calculated among samples correctly classified before the attack.
+
+### Clean and adversarial accuracy
+
+| Model | Sparsity | Clean | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD-10 |
+|---|---:|---:|---:|---:|---:|---:|
+| Control | 0% | 73.50% | 65.27% | 57.36% | 42.15% | 36.73% |
+| Pruned 30% | 30% | 73.44% | 65.48% | 57.33% | 42.23% | 36.69% |
+| Pruned 50% | 50% | 72.43% | 64.85% | 57.07% | 42.01% | 36.99% |
+| Pruned 70% | 70% | 61.50% | 53.70% | 46.81% | 33.80% | 30.57% |
+| Fine-tuned 30% | 30% | 75.45% | 66.06% | 56.60% | 40.98% | 33.71% |
+| Fine-tuned 50% | 50% | 75.48% | 66.40% | 57.12% | 41.27% | 33.90% |
+| Fine-tuned 70% | 70% | 75.22% | 66.57% | 57.78% | 42.02% | 35.37% |
+
+### Attack success rate
+
+| Model | FGSM 2/255 | FGSM 4/255 | FGSM 8/255 | PGD-10 |
+|---|---:|---:|---:|---:|
+| Control | 11.20% | 21.97% | 42.65% | 50.03% |
+| Pruned 30% | 10.85% | 21.95% | 42.50% | 50.04% |
+| Pruned 50% | 10.48% | 21.23% | 42.01% | 48.94% |
+| Pruned 70% | 12.70% | 23.92% | 45.06% | 50.31% |
+| Fine-tuned 30% | 12.45% | 24.98% | 45.69% | 55.32% |
+| Fine-tuned 50% | 12.03% | 24.32% | 45.32% | 55.09% |
+| Fine-tuned 70% | 11.50% | 23.19% | 44.14% | 52.98% |
+
+### Changes after fine-tuning
+
+| Sparsity | Clean accuracy change | FGSM 8/255 change | PGD-10 change |
+|---|---:|---:|---:|
+| 30% | +2.01 pp | -1.25 pp | -2.98 pp |
+| 50% | +3.05 pp | -0.74 pp | -3.09 pp |
+| 70% | +13.72 pp | +8.22 pp | +4.80 pp |
+
+### Main observations
+
+- Fine-tuning increased clean accuracy at all three pruning levels.
+- The 70% pruned model recovered substantially, increasing clean accuracy from 61.50% to 75.22%.
+- For 30% and 50% pruning, clean accuracy improved, but PGD-10 accuracy decreased after fine-tuning.
+- At 70% pruning, both clean and adversarial accuracy improved compared with the model before fine-tuning.
+- ASR increased after fine-tuning for all three pruning levels under PGD-10. This is not contradictory to the accuracy results because ASR is calculated only among initially correctly classified samples, whereas adversarial accuracy uses the full test set.
+- Compared with the unpruned control, all three fine-tuned models achieved higher clean accuracy but lower PGD-10 accuracy.
+
+### Interpretation and limitations
+
+Fine-tuning helped recover clean accuracy after pruning, especially at 70% sparsity. However, the effect on adversarial robustness was not consistent across pruning levels. The 30% and 50% models lost PGD-10 accuracy after fine-tuning, while the 70% model improved relative to its pre-fine-tuning result.
+
+These findings do not establish that fine-tuning improves adversarial robustness overall. The evaluation used one training seed, one checkpoint per model, and PGD-10 with one random start. The pruning masks were reconstructed from zero-valued weights rather than restored from separately saved mask metadata.
+
+The pruned checkpoints contain dense tensors with zero-valued weights. Their file sizes remained approximately 44.78 MB, so practical storage or inference-speed improvements have not been demonstrated.
+
+### Saved artifacts
+
+- Fine-tuning script: `train_resnet18_pruned_finetuning.py`
+- Evaluation script: `eval_resnet18_pruned_finetuning.py`
+- Evaluation results: `experiments/resnet18_pruned_finetuning_comparison.csv`
+- Training summary: `experiments/resnet18_pruned_finetuning_summary.csv`
+- Training histories:
+  - `experiments/resnet18_pruned_30_finetuning_history.csv`
+  - `experiments/resnet18_pruned_50_finetuning_history.csv`
+  - `experiments/resnet18_pruned_70_finetuning_history.csv`
+- Fine-tuned checkpoints:
+  - `checkpoints/resnet18_cifar10_fgsm_adv_pruned_30_finetuned.pth`
+  - `checkpoints/resnet18_cifar10_fgsm_adv_pruned_50_finetuned.pth`
+  - `checkpoints/resnet18_cifar10_fgsm_adv_pruned_70_finetuned.pth`
+
+### Next steps
+
+1. Evaluate the fine-tuned models using PGD-50 with five random restarts.
+2. Compare the results against the existing unpruned ResNet-18 PGD-50 evaluation.
+3. Repeat the pruning and fine-tuning experiments across multiple independent training seeds.
+4. Measure checkpoint storage, inference latency, and memory usage using suitable sparse implementations.
+5. Investigate whether quantization can be combined with pruning and adversarial fine-tuning.

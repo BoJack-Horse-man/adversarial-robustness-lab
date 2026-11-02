@@ -1,0 +1,4 @@
+pruning_ratio,best_validation_accuracy,final_sparsity,checkpoint
+30,78.86,30.000003582832214,checkpoints\resnet18_cifar10_fgsm_adv_pruned_30_finetuned.pth
+50,78.96,50.0,checkpoints\resnet18_cifar10_fgsm_adv_pruned_50_finetuned.pth
+70,78.7,69.99999641716778,checkpoints\resnet18_cifar10_fgsm_adv_pruned_70_finetuned.pth
