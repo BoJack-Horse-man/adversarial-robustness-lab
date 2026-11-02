@@ -862,3 +862,51 @@ These results provide preliminary evidence that FGSM adversarial fine-tuning imp
 
 ### Status
 FGSM adversarial fine-tuning and baseline comparison completed. Stronger robustness evaluation remains.
+
+## ResNet-18: PGD-50 Evaluation with Five Random Restarts - 2026-11-02
+
+### Configuration
+- Dataset: CIFAR-10 test set (10,000 images)
+- Models: baseline ResNet-18 and FGSM adversarially trained ResNet-18
+- Attack: untargeted PGD under the L-infinity norm
+- Epsilon: 8/255
+- Step size: 2/255
+- PGD steps: 50
+- Random restarts: 5
+- Batch size: 32
+- Base seed: 42
+- Device: NVIDIA GeForce GTX 1050
+
+### Results
+
+| Model | Clean Accuracy | PGD-50 Robust Accuracy | Cumulative ASR |
+|---|---:|---:|---:|
+| Baseline ResNet-18 | 89.26% | 0.00% | 100.00% |
+| FGSM Adversarial ResNet-18 | 73.50% | 34.97% | 52.42% |
+
+### Restart Results
+
+| Model | Successful Attacks per Restart |
+|---|---|
+| Baseline | 8926, 8926, 8926, 8926, 8926 |
+| FGSM Adversarial | 3815, 3821, 3814, 3820, 3820 |
+
+Cumulative ASR combines successful attacks across all five restarts using a per-image logical OR. Each initially correctly classified image is counted at most once.
+
+### Observations
+- The baseline model had 0.00% robust accuracy under this PGD-50 evaluation.
+- FGSM adversarial training improved PGD-50 robust accuracy to 34.97%.
+- Clean accuracy decreased by 15.76 percentage points compared with the baseline.
+- The FGSM adversarial model had a cumulative ASR of 52.42%.
+- The five restarts produced similar individual attack success counts.
+
+### Limitations
+- Results use one trained checkpoint per model and one base seed.
+- Only one epsilon and one PGD step size were evaluated.
+- The results do not establish robustness against all possible attacks.
+- The baseline checkpoint was selected using test accuracy during training, so its clean accuracy is subject to test-set selection bias.
+- Further evaluation with stronger attacks and multiple training seeds is needed.
+
+### Files
+- Script: `eval_resnet18_pgd50_multirestart.py`
+- Results: `experiments/resnet18_pgd50_multirestart.csv`
