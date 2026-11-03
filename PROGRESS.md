@@ -1176,3 +1176,93 @@ Cumulative ASR counts an image as successfully attacked if at least one of the f
 2. Investigate why fine-tuning after 70% pruning recovers more adversarial performance than at 30% and 50%.
 3. Evaluate actual inference latency, memory consumption, and model storage using an appropriate sparse implementation.
 4. Investigate quantization and combined pruning-quantization approaches.
+
+## ResNet-18: Inference Efficiency Benchmark - 2026-11-04
+
+### Objective
+
+Measure whether unstructured magnitude pruning and fine-tuning reduce the practical inference cost of ResNet-18 on the NVIDIA GTX 1050.
+
+The final controlled comparison evaluated the original baseline and the 70%-pruned, adversarially fine-tuned model.
+
+### Final Benchmark Configuration
+
+- GPU: NVIDIA GeForce GTX 1050 (4 GB)
+- Device: CUDA
+- Batch size: 64
+- Warm-up iterations: 50 per measurement
+- Timed iterations: 100 per measurement
+- Repeated measurements: 10 per model
+- Measurement order: randomized between models
+- Timing method: PyTorch CUDA events with synchronization
+- Models: Baseline and Fine-tuned 70%
+- Input: Random tensor with shape `[64, 3, 32, 32]`
+- Execution mode: `torch.inference_mode()`
+
+Both models were loaded onto the GPU before benchmarking.
+
+### Final Controlled Results
+
+| Metric | Baseline | Fine-tuned 70% |
+|---|---:|---:|
+| Median latency (ms) | 49.8516 | 49.7795 |
+| Mean latency (ms) | 50.6292 | 49.7716 |
+| Standard deviation (ms) | 2.7775 | 0.2514 |
+| Throughput (images/s) | 1283.81 | 1285.67 |
+| Checkpoint size (MiB) | 42.7021 | 42.7051 |
+
+### Raw Measurement Inspection
+
+The Baseline model had one unusually slow measurement in round 10:
+
+- Baseline: 58.5055 ms
+- Fine-tuned 70%: 50.0989 ms
+
+The other measurements were generally close to 50 ms.
+
+This outlier increased the Baseline standard deviation. The median is therefore more representative than the mean for this comparison.
+
+### Observations and Interpretation
+
+1. The median latency difference was approximately 0.0721 ms, or 0.14%. This is too small to establish a meaningful inference-speed improvement.
+2. Throughput was almost identical between the two models.
+3. The Fine-tuned 70% model had lower timing variation in this particular run. The reason for the Baseline outlier was not established.
+4. Checkpoint sizes remained approximately 42.7 MiB. Unstructured pruning did not produce meaningful dense checkpoint storage reduction.
+5. Although the model achieved approximately 70% sparsity among eligible weights, this sparsity did not translate into measurable practical inference acceleration in this experiment.
+
+### Earlier Benchmark Attempts
+
+Several earlier benchmark versions were conducted to investigate timing variability:
+
+- `benchmark_resnet18_efficiency.py`: initial benchmark.
+- `benchmark_resnet18_efficiency_controlled.py`: randomized batch-size measurements.
+- `benchmark_resnet18_efficiency_v2.py`: randomized model and batch-size measurements.
+- `benchmark_resnet18_efficiency_v3.py`: 10 randomized rounds with raw measurements.
+- `benchmark_resnet18_efficiency_final.py`: focused Baseline versus Fine-tuned 70% comparison.
+
+The earlier measurements showed substantial timing variability and are retained as diagnostic experiments. The final focused comparison is reported separately and does not replace those results.
+
+### Limitations
+
+- Only one GPU was used.
+- Only one checkpoint per model was evaluated.
+- Only batch size 64 was included in the final focused comparison.
+- Ten measurements per model are insufficient to establish a general performance difference.
+- The Baseline had one timing outlier, and its cause could not be determined.
+- Random input tensors were used rather than the CIFAR-10 test dataset.
+- No sparse inference kernel or hardware-accelerated sparse implementation was used.
+- Checkpoint size does not represent compressed sparse storage.
+- GPU power measurements were unavailable through the NVIDIA driver interface.
+
+### Saved Artifacts
+
+- Final benchmark script: `benchmark_resnet18_efficiency_final.py`
+- Raw measurements: `experiments/resnet18_efficiency_final_raw.csv`
+- Summary results: `experiments/resnet18_efficiency_final_summary.csv`
+- Earlier diagnostic scripts and results are retained separately.
+
+### Status
+
+The preliminary inference-efficiency comparison is complete.
+
+The current evidence does not demonstrate a meaningful inference-speed or storage improvement from 70% unstructured pruning on the GTX 1050. Further work would require a sparse inference implementation and more repeated measurements under controlled conditions.
