@@ -1116,3 +1116,63 @@ The pruned checkpoints contain dense tensors with zero-valued weights. Their fil
 3. Repeat the pruning and fine-tuning experiments across multiple independent training seeds.
 4. Measure checkpoint storage, inference latency, and memory usage using suitable sparse implementations.
 5. Investigate whether quantization can be combined with pruning and adversarial fine-tuning.
+
+## ResNet-18: PGD-50 Multi-Restart Evaluation of Fine-Tuned Pruned Models - 2026-11-03
+
+### Objective
+
+Evaluate the adversarial robustness of the three fine-tuned pruned ResNet-18 models using a stronger PGD attack with 50 steps and five random restarts. Compare them with the original baseline and the unpruned FGSM-adversarially-trained control.
+
+### Experimental Configuration
+
+- Dataset: CIFAR-10 test set (10,000 images)
+- Model: CIFAR-adapted ResNet-18
+- Batch size: 32
+- Attack: Untargeted PGD
+- Epsilon: 8/255
+- Step size: 2/255
+- PGD steps: 50
+- Random restarts: 5
+- Base seed: 42
+- Device: NVIDIA GeForce GTX 1050
+- Evaluation: Clean accuracy, PGD-50 robust accuracy, cumulative attack success rate (ASR)
+
+Cumulative ASR counts an image as successfully attacked if at least one of the five restarts causes misclassification, among images correctly classified before the attack. Robust accuracy is calculated over all 10,000 test images.
+
+### Results
+
+| Model | Clean Accuracy | PGD-50 Robust Accuracy | Cumulative ASR |
+|---|---:|---:|---:|
+| Baseline | 89.26% | 0.00% | 100.00% |
+| FGSM Adversarial Control | 73.50% | 34.97% | 52.42% |
+| Fine-tuned 30% | 75.45% | 31.62% | 58.09% |
+| Fine-tuned 50% | 75.48% | 31.81% | 57.86% |
+| Fine-tuned 70% | 75.22% | 33.45% | 55.53% |
+
+### Observations
+
+1. The unpruned FGSM-adversarially-trained control achieved the highest PGD-50 robust accuracy at 34.97%.
+2. Among the fine-tuned pruned models, the 70% model achieved the highest PGD-50 robust accuracy at 33.45%.
+3. The 30% and 50% fine-tuned models achieved slightly higher clean accuracy than the control, but their PGD-50 robust accuracy was lower.
+4. The 70% fine-tuned model recovered much of the performance lost after pruning. Its PGD-50 robust accuracy reached 33.45%, compared with 30.57% for the corresponding pruned model before fine-tuning under PGD-10. These values use different attack configurations, so they should not be interpreted as a direct controlled comparison.
+5. None of the fine-tuned pruned models surpassed the unpruned adversarially-trained control under this PGD-50 evaluation.
+6. Increasing the pruning ratio did not produce a consistent improvement in adversarial robustness.
+
+### Limitations
+
+- Only one training seed and one checkpoint per model were evaluated.
+- PGD-50 used five random restarts, but this does not establish formal worst-case robustness.
+- The results are specific to CIFAR-10, this architecture, and the selected attack configuration.
+- The experiment does not demonstrate actual storage reduction or inference-speed improvement from unstructured pruning.
+
+### Artifacts
+
+- Evaluation script: `eval_resnet18_pruned_finetuned_pgd50.py`
+- Results: `experiments/resnet18_pruned_finetuned_pgd50.csv`
+
+### Next Steps
+
+1. Repeat experiments with multiple training seeds.
+2. Investigate why fine-tuning after 70% pruning recovers more adversarial performance than at 30% and 50%.
+3. Evaluate actual inference latency, memory consumption, and model storage using an appropriate sparse implementation.
+4. Investigate quantization and combined pruning-quantization approaches.
