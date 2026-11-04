@@ -2,8 +2,8 @@
 # Research Progress Log
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
-**Status:** Initial experiments completed; research ongoing  
-**Last updated:** 2026-11-01
+**Status:** Professor's three immediate experimental priorities completed; research ongoing  
+**Last updated:** 2026-11-04
 
 ## 1. Current Position
 
@@ -29,7 +29,15 @@
 - [x] Fine-tune 30%, 50%, and 70% pruned adversarially trained SimpleCNN models while preserving pruning masks.
 - [x] Compare clean accuracy, PGD-10 accuracy, and attack success rate before and after fine-tuning.
 - [x] Generate and verify before-and-after comparison plots for clean accuracy, PGD-10 accuracy, and ASR.
-
+- [x] Establish and train a CIFAR-adapted ResNet-18 baseline on all 50,000 CIFAR-10 training images for 100 epochs.
+- [x] Record ResNet-18 training configuration, including optimizer, learning rate, batch size, epochs, and learning-rate schedule.
+- [x] Evaluate ResNet-18 clean accuracy and FGSM/PGD robustness.
+- [x] Compare custom FGSM/PGD implementations against `torchattacks` for the tested ResNet-18 settings.
+- [x] Report clean accuracy, adversarial accuracy, and ASR for the documented attack settings.
+- [x] Apply 30%, 50%, and 70% global magnitude pruning to the adversarially trained ResNet-18 and evaluate clean accuracy, adversarial accuracy, and ASR.
+- [x] Fine-tune the pruned ResNet-18 models while preserving the reconstructed pruning masks.
+- [x] Evaluate fine-tuned pruned ResNet-18 models with PGD-50 and five random restarts.
+- [x] Conduct a preliminary inference-efficiency comparison and document its limitations.
 
 ### PGD-50 Multi-Restart Model Comparison - 2026-10-26
 
@@ -69,14 +77,17 @@ The adversarially trained model improved PGD-50 robust accuracy by 24.93 percent
 3. Evaluate quantization separately.
 4. Compare compressed models with and without adversarial training under matched evaluation settings.
 
-### Remaining
-- [ ] Study the HYDRA paper and implementation.
-- [ ] Reproduce a suitable HYDRA experiment.
-- [x] Run an initial global magnitude-pruning and robustness comparison on adversarially trained SimpleCNN.
-- [x] Investigate the initial pruning and fine-tuning trade-off using one seed.
-- [ ] Repeat pruning and fine-tuning experiments across multiple training seeds.
-- [ ] Improve experimental reproducibility with multiple random seeds.
-- [ ] Measure model size, runtime, and computational efficiency.
+### Remaining Research Work
+- [x] Study the HYDRA paper and inspect its reference implementation.
+- [x] Run HYDRA pipeline smoke tests and document why they are not a formal paper reproduction.
+- [ ] Conduct a controlled, full HYDRA reproduction if it remains relevant to the final research question.
+- [ ] Repeat key training, pruning, and fine-tuning experiments across multiple independent seeds.
+- [ ] Independently cross-check ASR calculations and evaluation denominators for the reported experiments.
+- [ ] Improve baseline methodology by retraining/selecting the ResNet-18 checkpoint without using test-set accuracy for model selection.
+- [ ] Validate CIFAR-100 results with longer training and multiple seeds if CIFAR-100 remains in the final study.
+- [ ] Identify and justify a specific research gap and testable research contribution.
+- [ ] Prepare the consolidated results, analysis, limitations, and report for the supervisor.
+- [ ] Evaluate quantization only if it supports the agreed research question and available resources.
 
 ## 2. Session Log
 
@@ -326,49 +337,40 @@ Dataset: CIFAR-100 test set (10,000 images; 100 classes).
 
 ## 4. Current Limitations
 
-- The baseline is a small custom CNN, not ResNet-18 or another standard benchmark architecture.
-- Training was limited to five epochs on both CIFAR-10 and CIFAR-100.
-- Important experiments have not yet been repeated across multiple random seeds.
-- The CIFAR-100 results are preliminary and need validation with longer training runs and multiple seeds.
-- PGD evaluation should be further checked for reproducibility, attack strength, and possible evaluation pitfalls.
-- Initial global magnitude-pruning experiments have been completed on baseline and FGSM adversarially trained SimpleCNN. Fine-tuning, multi-seed validation, and quantization remain outstanding.
-- HYDRA diagnostics have been performed, but a full research experiment has not been reproduced.
-- Model size, inference latency, and computational savings have not yet been measured.
-- The current results do not yet establish the trade-off between model compression and adversarial robustness.
+The professor's three immediate experimental priorities have been addressed, but the evidence remains preliminary and has important limitations:
+
+- Most training, pruning, and fine-tuning comparisons use one training seed and one checkpoint per configuration. Multi-seed reproducibility has not been established.
+- The original CIFAR-10 ResNet-18 baseline checkpoint was selected using test accuracy during training. Its reported 89.26% clean accuracy is therefore subject to test-set selection bias. A clean retraining and model-selection protocol using validation data is still needed for a rigorous final benchmark.
+- CIFAR-100 SimpleCNN experiments used five epochs and one seed; they are exploratory rather than a reliable benchmark.
+- FGSM/PGD implementation comparison against `torchattacks` was performed for the tested CIFAR-10 ResNet-18 settings. It does not validate every attack configuration or every model. A separate independent audit of the ASR implementation and denominators remains useful.
+- PGD-50 with five restarts is stronger than the earlier PGD-10 evaluation, but it is not a formal guarantee of worst-case robustness.
+- HYDRA work consists of code/data/training/evaluation smoke tests on 10% of CIFAR-10 with short runs. It is not a formal reproduction of the paper.
+- The inference benchmark compared only the baseline and fine-tuned 70% model at batch size 64 on one GTX 1050, with ten measurements per model. It found no meaningful latency or dense checkpoint-size improvement. No sparse inference kernel or compressed sparse storage was tested.
+- Unstructured weight sparsity should not be equated with actual storage, memory, or runtime savings.
+- No quantization experiment has been conducted.
 
 ## 5. Next Steps
 
-### Priority 1: Validate Existing Experiments
-1. Review the FGSM and PGD implementations.
-2. Improve evaluation reproducibility where possible.
-3. Repeat key experiments with multiple random seeds.
-4. Record attack settings consistently.
-5. Investigate stronger evaluation settings and potential robustness evaluation pitfalls.
+### Priority 1: Strengthen experimental validity
+1. Repeat key training, pruning, and fine-tuning experiments with multiple independent seeds.
+2. Retrain the CIFAR-10 ResNet-18 baseline using a training/validation split and select checkpoints using validation data only; reserve the test set for final evaluation.
+3. Independently audit ASR calculations, including the initially-correct denominator, and verify them against per-example predictions.
+4. If robustness claims are central, evaluate matched models with consistent stronger attack settings and multiple restarts.
 
-### Priority 2: Study HYDRA
-1. Read *HYDRA: Pruning Adversarially Robust Neural Networks*.
-2. Understand its motivation and main contribution.
-3. Study its pretraining, pruning, and fine-tuning stages.
-4. Compare its pruning approach with ordinary magnitude-based pruning.
-5. Inspect the implementation before attempting a reproduction.
+### Priority 2: Define the research contribution
+1. Compare the completed findings with the five reviewed papers and other directly relevant literature.
+2. Identify a specific, defensible research gap in adversarial robustness and efficient neural networks.
+3. Formulate a testable research question and discuss the proposed contribution and scope with the supervisor.
 
-**References**
+### Priority 3: Complete the research outputs
+1. Consolidate training configurations, clean/adversarial accuracy, ASR, measured sparsity, checkpoint size, and inference timing into consistent result tables and figures.
+2. Explain the clean-accuracy/robustness trade-offs without claiming that unstructured pruning improves robustness or inference speed where the current results do not support that claim.
+3. Prepare the methodology, results, discussion, limitations, and conclusion for the supervisor.
+4. Consider a controlled HYDRA reproduction or quantization only if either is necessary to answer the final research question and can be completed with the available resources.
+
+**HYDRA references**
 - Paper: https://arxiv.org/abs/2002.10509
 - Official repository: https://github.com/inspire-group/hydra
-
-### Priority 3: Extend the Experiments
-1. Validate CIFAR-100 results across multiple random seeds and longer training runs.
-2. Consider a standard architecture such as ResNet-18, subject to GPU memory limits.
-3. Implement and evaluate a suitable pruning method.
-4. Measure parameter count, model size, accuracy, robustness, and inference time.
-5. Compare clean and robust accuracy before and after pruning.
-6. Explore quantization if resources permit.
-
-### Priority 4: Identify a Research Gap
-1. Review related work on adversarial robustness and model compression.
-2. Compare the strengths and limitations of existing methods.
-3. Identify a research question that can be tested with the available hardware.
-4. Discuss the proposed research question and experimental design with the supervisor.
 
 ## 6. Research Decisions and Workflow
 
