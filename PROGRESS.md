@@ -83,7 +83,7 @@ The adversarially trained model improved PGD-50 robust accuracy by 24.93 percent
 - [ ] Conduct a controlled, full HYDRA reproduction if it remains relevant to the final research question.
 - [ ] Repeat key training, pruning, and fine-tuning experiments across multiple independent seeds.
 - [ ] Independently cross-check ASR calculations and evaluation denominators for the reported experiments.
-- [ ] Improve baseline methodology by retraining/selecting the ResNet-18 checkpoint without using test-set accuracy for model selection.
+- [x] Improve baseline methodology by retraining/selecting the ResNet-18 checkpoint without using test-set accuracy for model selection.
 - [ ] Validate CIFAR-100 results with longer training and multiple seeds if CIFAR-100 remains in the final study.
 - [ ] Identify and justify a specific research gap and testable research contribution.
 - [ ] Prepare the consolidated results, analysis, limitations, and report for the supervisor.
@@ -340,7 +340,7 @@ Dataset: CIFAR-100 test set (10,000 images; 100 classes).
 The professor's three immediate experimental priorities have been addressed, but the evidence remains preliminary and has important limitations:
 
 - Most training, pruning, and fine-tuning comparisons use one training seed and one checkpoint per configuration. Multi-seed reproducibility has not been established.
-- The original CIFAR-10 ResNet-18 baseline checkpoint was selected using test accuracy during training. Its reported 89.26% clean accuracy is therefore subject to test-set selection bias. A clean retraining and model-selection protocol using validation data is still needed for a rigorous final benchmark.
+- The original CIFAR-10 ResNet-18 baseline checkpoint was selected using test accuracy during training. Its reported 89.26% clean accuracy is subject to test-set selection bias. A replacement validation-based baseline has now been trained using a reproducible 45,000/5,000 training-validation split (seed 42). The best validation accuracy was 89.70% at epoch 54, and the final held-out test accuracy was 88.06%. The test set was not used for checkpoint selection. However, this is still a single-seed result. Existing ResNet-18 adversarial-training and pruning experiments were derived from the old checkpoint and have not yet been repeated using the new validated baseline.
 - CIFAR-100 SimpleCNN experiments used five epochs and one seed; they are exploratory rather than a reliable benchmark.
 - FGSM/PGD implementation comparison against `torchattacks` was performed for the tested CIFAR-10 ResNet-18 settings. It does not validate every attack configuration or every model. A separate independent audit of the ASR implementation and denominators remains useful.
 - PGD-50 with five restarts is stronger than the earlier PGD-10 evaluation, but it is not a formal guarantee of worst-case robustness.
@@ -353,7 +353,7 @@ The professor's three immediate experimental priorities have been addressed, but
 
 ### Priority 1: Strengthen experimental validity
 1. Repeat key training, pruning, and fine-tuning experiments with multiple independent seeds.
-2. Retrain the CIFAR-10 ResNet-18 baseline using a training/validation split and select checkpoints using validation data only; reserve the test set for final evaluation.
+2. Repeat ResNet-18 adversarial training and pruning experiments using the new validation-based baseline, with matched training configurations and evaluation settings.
 3. Independently audit ASR calculations, including the initially-correct denominator, and verify them against per-example predictions.
 4. If robustness claims are central, evaluate matched models with consistent stronger attack settings and multiple restarts.
 
@@ -1268,3 +1268,64 @@ The earlier measurements showed substantial timing variability and are retained 
 The preliminary inference-efficiency comparison is complete.
 
 The current evidence does not demonstrate a meaningful inference-speed or storage improvement from 70% unstructured pruning on the GTX 1050. Further work would require a sparse inference implementation and more repeated measurements under controlled conditions.
+### ResNet-18 Validation-Based Baseline - 2026-11-05
+
+**Status:** Completed; single-seed baseline and final test evaluation.
+
+**Dataset and split**
+- Dataset: CIFAR-10.
+- Training subset: 45,000 images.
+- Validation subset: 5,000 images.
+- Test set: 10,000 images, reserved for final evaluation.
+- Random seed: 42.
+- Input transformation: ToTensor(), pixel range [0, 1].
+
+**Training configuration**
+- Architecture: CIFAR-adapted ResNet-18.
+- Parameters: 11,173,962.
+- Epochs: 100.
+- Batch size: 64.
+- Optimizer: SGD.
+- Learning rate: 0.1.
+- Momentum: 0.9.
+- Weight decay: 0.0005.
+- Scheduler: MultiStepLR, milestones [50, 75], gamma 0.1.
+- Best checkpoint selected using validation accuracy only.
+
+**Training results**
+- Best validation accuracy: 89.70% at epoch 54.
+- Final training accuracy: 100.00%.
+- Final validation accuracy: 89.36%.
+- Final validation loss: 0.3746.
+
+**Final test results**
+
+Clean accuracy: **88.06%**.
+
+| Attack | Epsilon | Adversarial accuracy | ASR |
+|---|---:|---:|---:|
+| FGSM | 2/255 | 21.39% | 75.71% |
+| FGSM | 4/255 | 8.68% | 90.14% |
+| FGSM | 8/255 | 3.85% | 95.70% |
+| PGD-10 | 8/255 | 0.00% | 100.00% |
+
+PGD configuration: 10 steps, alpha 2/255, random start.
+
+**Artifacts**
+- Training: `train_resnet18_validated.py`
+- Evaluation: `eval_resnet18_validated.py`
+- Best checkpoint: `checkpoints/resnet18_cifar10_validated_best.pth`
+- Latest checkpoint: `checkpoints/resnet18_cifar10_validated.pth`
+- Training history: `experiments/resnet18_validated_training_history.csv`
+- Attack results: `experiments/resnet18_validated_attack_results.csv`
+
+**Limitations**
+- Only one training seed was used.
+- ASR code and reported percentages were reviewed, but an independent per-example audit remains unfinished.
+- Existing ResNet-18 adversarial-training and pruning experiments still use the previous test-selected baseline.
+- Those downstream experiments must be repeated using this new baseline before making direct comparisons.
+
+**Conclusion**
+
+This validation-based baseline provides a more methodologically appropriate starting point for subsequent controlled ResNet-18 adversarial-training and pruning experiments.
+
