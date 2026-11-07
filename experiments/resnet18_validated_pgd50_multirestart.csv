@@ -1,0 +1,3 @@
+model,epsilon,alpha,steps,restarts,clean_accuracy,pgd50_robust_accuracy,cumulative_asr,restart_success_counts
+Validated_Baseline,0.03137254901960784,0.00784313725490196,50,5,88.06,0.0,100.0,8806;8806;8806;8806;8806
+Validated_FGSM_Adversarial,0.03137254901960784,0.00784313725490196,50,5,68.93,32.25,53.213404903525316,3634;3642;3635;3646;3636

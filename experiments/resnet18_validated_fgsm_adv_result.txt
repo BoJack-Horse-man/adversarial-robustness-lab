@@ -1,0 +1,18 @@
+CIFAR-10 ResNet-18 FGSM Adversarial Fine-Tuning (Validated Baseline)
+Seed: 42
+Starting checkpoint: checkpoints\resnet18_cifar10_validated_best.pth
+Training images: 45000
+Validation images: 5000
+Test images: 10000
+Epochs: 10
+Batch size: 32
+Optimizer: SGD
+Learning rate: 0.001
+Momentum: 0.9
+Weight decay: 0.0005
+FGSM epsilon: 0.03137255
+Best validation clean accuracy: 72.64%
+Final test loss: 1.0283
+Final test clean accuracy: 68.93%
+Checkpoint: checkpoints\resnet18_validated_fgsm_adv_best.pth
+History: experiments\resnet18_validated_fgsm_adv_history.csv
