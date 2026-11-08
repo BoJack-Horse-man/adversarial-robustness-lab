@@ -125,8 +125,8 @@ This benchmark did **not** demonstrate a meaningful inference-speed or dense che
 - Unstructured weight sparsity did not translate into demonstrated storage or inference-speed savings in the preliminary dense-model benchmark.
 ## Project Documentation
 
-- [PROGRESS.md](PROGRESS.md) â€” detailed session history, experiment configurations, results, limitations, and remaining work.
-- [PLAN.md](PLAN.md) â€” research milestones and exit criteria.
+- [PROGRESS.md](PROGRESS.md)  detailed session history, experiment configurations, results, limitations, and remaining work.
+- [PLAN.md](PLAN.md)  research milestones and exit criteria.
 
 ## Research References
 
