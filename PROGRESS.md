@@ -2,8 +2,8 @@
 # Research Progress Log
 
 **Project:** Adversarial Robustness of Efficient Neural Networks  
-**Status:** Professor's three immediate experimental priorities completed; research ongoing  
-**Last updated:** 2026-11-04
+**Status:** Principal experiments and final research report completed; repository documentation closeout remains  
+**Last updated:** 2026-11-08
 
 ## 1. Current Position
 
@@ -90,34 +90,33 @@ The adversarially trained model improved PGD-50 robust accuracy by 24.93 percent
 
 ### Remaining Research Work
 
-The main experimental work has been completed within the current research scope. No additional experiments are planned. The remaining work focuses on organizing, analyzing, documenting, and presenting the existing results.
+The principal experimental work is complete within the frozen scope. No additional experiments are planned. The remaining work is limited to repository documentation consistency and supervisor-facing review.
 
 **Documentation**
-- [ ] Review and finalize `PROGRESS.md`, ensuring completed experiments and historical records are accurately documented.
-- [ ] Update `PLAN.md` to reflect the completed experimental work and frozen research scope.
-- [ ] Update `README.md` with the final project overview, methodology, and key findings.
+- [x] Review and update `PROGRESS.md`, preserving historical experiment records.
+- [ ] Final consistency update to `PLAN.md` so its milestone status agrees with the completed work.
+- [ ] Final consistency update to `README.md` with the principal validation-based results and final report link.
 
 **Results and Analysis**
-- [ ] Organize existing experimental results into consolidated comparison tables.
-- [ ] Prepare final figures using the existing CSV files and experimental results.
-- [ ] Compare the standard and FGSM-adversarially-trained ResNet-18 models.
-- [ ] Analyze the effects of 30%, 50%, and 70% pruning on clean accuracy and adversarial robustness.
-- [ ] Explain the trade-off between clean accuracy and adversarial robustness.
-- [ ] Verify that the final reported metrics agree with the existing experiment records.
+- [x] Consolidate the validation-based experimental results into comparison tables.
+- [x] Prepare final figures from the existing results.
+- [x] Compare the standard and FGSM-adversarially-trained ResNet-18 models.
+- [x] Analyze the effects of 30%, 50%, and 70% pruning on clean accuracy and adversarial robustness.
+- [x] Explain the clean-accuracy and adversarial-robustness trade-off.
+- [x] Verify the reported metrics against the existing experiment records and independently audit baseline ASR calculations.
 
 **Final Research Report**
-- [ ] Finalize the research methodology and experimental configurations.
-- [ ] Write the results and discussion based on completed experiments.
-- [ ] Explain the limitations, including the single-training-seed setting.
-- [ ] Document that HYDRA was inspected and smoke-tested, not fully reproduced.
-- [ ] Discuss the limitations of unstructured pruning for practical inference efficiency.
-- [ ] Complete the conclusion and state the research contribution supported by the existing findings.
-- [ ] Prepare the final research report for supervisor review.
+- [x] Finalize the research methodology and experimental configurations.
+- [x] Write the results and discussion based on completed experiments.
+- [x] Explain limitations, including the single-training-seed setting.
+- [x] Document that HYDRA was inspected and smoke-tested, not fully reproduced.
+- [x] Discuss the limitations of unstructured pruning for practical inference efficiency.
+- [x] Complete the conclusion and state the contribution supported by the existing findings.
+- [x] Commit the final research report for supervisor review.
 
 **Research Scope**
 
-The following activities are excluded from the current project scope:
-
+The following activities are excluded from the current project scope and are not outstanding tasks:
 - Additional multi-seed training and evaluation.
 - PGD-50 evaluation of additional pruned models.
 - New CIFAR-100 experiments.
@@ -126,6 +125,11 @@ The following activities are excluded from the current project scope:
 - Full HYDRA reproduction.
 - Additional pruning, sparse-inference, or efficiency experiments.
 - New attack or defense experiments.
+
+**Completion assessment**
+
+The experimental research objectives defined for the current scope have been completed and documented. This does not mean that every item in the original exploratory plan was performed: multi-seed validation, quantization, sparse inference, and full HYDRA reproduction remain explicitly excluded limitations. The final report is ready for supervisor review. The repository documentation closeout is not fully complete until the remaining `README.md` and `PLAN.md` consistency updates are made.
+ 
 ## 2. Session Log
 
 ### 2026-10-19: Research Planning
@@ -1676,3 +1680,27 @@ The original evaluation CSV files were retained unchanged.
 
 These findings should be interpreted in light of the single-training-seed limitation. Multi-seed validation is outside the current project scope and may be considered in future work.
 
+
+
+### 2026-11-08: Final Report and Research Completion Review
+
+**Completed**
+- Replaced the outdated SimpleCNN-centered report with a final report centered on the validation-based CIFAR-10 ResNet-18 experiments.
+- Documented the 45,000/5,000/10,000 train/validation/test split and validation-only checkpoint selection.
+- Consolidated standard versus FGSM-trained results, FGSM and PGD evaluations, PGD-50 five-restart results, and 30%, 50%, and 70% pruning comparisons.
+- Included the independent ASR audit and clarified that ASR is conditional on initially correctly classified samples.
+- Corrected the input pixel range to [0, 1].
+- Documented the GTX 1050 dense-inference benchmark and its limitations.
+- Preserved earlier SimpleCNN, CIFAR-100, and test-selected ResNet-18 experiments as supporting or historical results.
+- Explicitly documented that HYDRA was smoke-tested but not fully reproduced.
+- Reviewed the project against the frozen research scope.
+
+**Current completion status**
+- Principal experiments: completed.
+- Final research report: completed and committed.
+- Progress log: updated and committed.
+- Remaining repository documentation: update `README.md` and `PLAN.md` for consistency.
+- Supervisor review/submission: pending external review.
+
+**Scope decision**
+No new experiments are required for the current project scope. The single-seed design, limited attack coverage, hardware-specific dense benchmark, exploratory CIFAR-100 results, and incomplete HYDRA reproduction remain limitations rather than unfinished experimental tasks.
