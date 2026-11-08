@@ -1702,5 +1702,3 @@ These findings should be interpreted in light of the single-training-seed limita
 - Remaining repository documentation: update `README.md` and `PLAN.md` for consistency.
 - Supervisor review/submission: pending external review.
 
-**Scope decision**
-No new experiments are required for the current project scope. The single-seed design, limited attack coverage, hardware-specific dense benchmark, exploratory CIFAR-100 results, and incomplete HYDRA reproduction remain limitations rather than unfinished experimental tasks.
