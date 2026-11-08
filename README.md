@@ -16,11 +16,15 @@ The main experimental work uses CIFAR-10 and CIFAR-100 with a small SimpleCNN, f
 - [x] Evaluate selected ResNet-18 models using PGD-50 with five random restarts.
 - [x] Conduct a preliminary ResNet-18 inference-efficiency benchmark.
 - [x] Inspect the HYDRA paper and run limited implementation smoke tests.
-- [ ] Repeat key experiments across multiple independent training seeds.
-- [ ] Retrain the ResNet-18 baseline with validation-only checkpoint selection.
-- [ ] Independently audit ASR calculations and evaluation denominators.
-- [ ] Define and validate a specific research gap and contribution.
-- [ ] Prepare the consolidated research report.
+- [x] Retrain the ResNet-18 baseline with validation-only checkpoint selection.
+- [x] Independently audit ASR calculations and evaluation denominators for the validation-based baseline.
+- [x] Complete validation-based FGSM adversarial fine-tuning and matched FGSM/PGD evaluations.
+- [x] Complete PGD-50 evaluation with five random restarts for the validation-based standard and FGSM-trained models.
+- [x] Complete 30%, 50%, and 70% pruning evaluations for both validation-based model types.
+- [x] Consolidate the validation-based pruning evaluation results.
+- [ ] Finalize the consolidated results, analysis, limitations, and research report.
+
+The experimental scope is frozen. Additional multi-seed experiments and other new experiments are not planned for the current project.
 
 ## Main Experimental Results
 
@@ -31,16 +35,16 @@ The following are five-epoch CIFAR-10 experiments on the 10,000-image test set, 
 | Evaluation | Clean baseline | FGSM adversarially trained |
 |---|---:|---:|
 | Clean accuracy | 55.53% | 45.88% |
-| FGSM, ε = 2/255 | 34.57% | 41.39% |
-| FGSM, ε = 4/255 | 20.54% | 37.12% |
-| FGSM, ε = 8/255 | 7.61% | 28.87% |
-| PGD-10, ε = 8/255 | 3.46%* | 27.68% |
+| FGSM, Îµ = 2/255 | 34.57% | 41.39% |
+| FGSM, Îµ = 4/255 | 20.54% | 37.12% |
+| FGSM, Îµ = 8/255 | 7.61% | 28.87% |
+| PGD-10, Îµ = 8/255 | 3.46%* | 27.68% |
 
 These initial results show a clean-accuracy and adversarial-accuracy trade-off in this short training setup. The baseline PGD result was 3.46% in the model-comparison run and 3.49% in a separate evaluation.
 
-### CIFAR-adapted ResNet-18
+### CIFAR-adapted ResNet-18: Earlier Experimental Track
 
-The ResNet-18 baseline was trained on the full 50,000-image CIFAR-10 training set for 100 epochs. The CIFAR adaptation uses a 3×3 first convolution with stride 1 and removes the ImageNet max-pooling layer.
+The following results belong to the earlier ResNet-18 experimental track. The baseline was trained on the full 50,000-image CIFAR-10 training set for 100 epochs. The CIFAR adaptation uses a 3Ã—3 first convolution with stride 1 and removes the ImageNet max-pooling layer. The baseline checkpoint was selected using test accuracy, so these results are retained as historical experimental results and are not the final validation-based comparison.
 
 | Model | Clean accuracy | PGD-50 robust accuracy | PGD-50 cumulative ASR |
 |---|---:|---:|---:|
@@ -50,9 +54,52 @@ The ResNet-18 baseline was trained on the full 50,000-image CIFAR-10 training se
 | Fine-tuned, 50% pruned | 75.48% | 31.81% | 57.86% |
 | Fine-tuned, 70% pruned | 75.22% | 33.45% | 55.53% |
 
-PGD-50 configuration: ε = 8/255, step size = 2/255, 50 steps, and five random restarts. Cumulative ASR counts an initially correctly classified image as successfully attacked if at least one restart causes misclassification. Robust accuracy is calculated over the full test set.
+PGD-50 configuration: Îµ = 8/255, step size = 2/255, 50 steps, and five random restarts. Cumulative ASR counts an initially correctly classified image as successfully attacked if at least one restart causes misclassification. Robust accuracy is calculated over the full test set.
 
 The unpruned adversarially trained control had the highest PGD-50 robust accuracy among these models. The fine-tuned 70%-pruned model performed best among the fine-tuned pruned models, but did not exceed the control. These are single-seed results under one attack configuration.
+
+
+### Validation-based ResNet-18 experiments
+
+A separate ResNet-18 experimental track was completed using a training/validation split to avoid selecting the checkpoint with test-set accuracy. The CIFAR-10 training data was divided into 45,000 training images and 5,000 validation images; the 10,000-image test set was reserved for final evaluation. The best checkpoint was selected using validation accuracy.
+
+| Evaluation | Validation-based standard model | FGSM adversarially trained model |
+|---|---:|---:|
+| Clean test accuracy | 88.06% | 68.93% |
+| FGSM, Îµ = 2/255 | 21.39% | 60.97% |
+| FGSM, Îµ = 4/255 | 8.68% | 52.67% |
+| FGSM, Îµ = 8/255 | 3.85% | 38.09% |
+| PGD-10, Îµ = 8/255 | 0.00% | 33.49% |
+| PGD-50 robust accuracy, five restarts | 0.00% | 32.25% |
+| PGD-50 cumulative ASR, five restarts | 100.00% | 53.21% |
+
+The FGSM-trained model improved adversarial accuracy under the evaluated attacks, including a 32.25 percentage-point improvement in PGD-50 robust accuracy. This came with a 19.13 percentage-point reduction in clean test accuracy. The results show a clear clean-accuracy and adversarial-robustness trade-off in this training configuration.
+
+The baseline ASR calculations were independently audited. ASR is calculated conditionally on samples that were correctly classified before the attack. For the PGD-50 multi-restart evaluation, cumulative ASR counts an initially correctly classified image as successfully attacked if at least one of the five restarts causes misclassification.
+
+### Validation-based pruning results
+
+Global L1 unstructured magnitude pruning at 30%, 50%, and 70% sparsity was evaluated separately on the validation-based standard model and the FGSM-trained model.
+
+| Model | Sparsity | Clean accuracy |
+|---|---:|---:|
+| Standard control | 0% | 88.06% |
+| Standard pruned | 30% | 88.05% |
+| Standard pruned | 50% | 87.91% |
+| Standard pruned | 70% | 86.58% |
+| FGSM-trained control | 0% | 68.93% |
+| FGSM-trained pruned | 30% | 68.79% |
+| FGSM-trained pruned | 50% | 67.80% |
+| FGSM-trained pruned | 70% | 54.54% |
+
+For the standard model, 30% and 50% pruning caused very small clean-accuracy changes, while 70% pruning caused a larger reduction. Pruning did not improve the standard model's adversarial robustness under the evaluated attacks.
+
+For the FGSM-trained model, 30% and 50% pruning largely preserved clean and adversarial accuracy. At 70% sparsity, clean accuracy decreased by 14.39 percentage points relative to the unpruned FGSM-trained control. Small changes in ASR should not be interpreted alone as improved robustness; clean accuracy and adversarial accuracy must also be considered.
+
+The validation-based pruning results are available in:
+- `experiments/resnet18_validated_baseline_pruning_evaluation.csv`
+- `experiments/resnet18_validated_fgsm_adv_pruning_evaluation.csv`
+- `experiments/resnet18_validated_combined_pruning_evaluation.csv`
 
 ### Preliminary inference-efficiency benchmark
 
@@ -68,23 +115,22 @@ This benchmark did **not** demonstrate a meaningful inference-speed or dense che
 
 ## Important Limitations
 
-- Most model comparisons use one training seed and one checkpoint per configuration.
-- The ResNet-18 baseline checkpoint was selected using test accuracy during training. Therefore, its reported 89.26% clean accuracy is subject to test-set selection bias. A validation-only checkpoint-selection protocol is still needed for a rigorous final benchmark.
+- The experiments use one training seed per configuration. Multi-seed validation was not included in the current project scope.
+- The earlier ResNet-18 track selected its checkpoint using test accuracy; its reported 89.26% clean accuracy is subject to test-set selection bias. The separate validation-based track addresses checkpoint selection using 45,000 training images, 5,000 validation images, and a held-out 10,000-image test set.
 - The custom FGSM/PGD implementations were compared with `torchattacks` for the tested CIFAR-10 ResNet-18 settings; this does not validate every model or attack configuration.
-- ASR calculations and denominators still require an independent audit.
+- ASR calculations for the validation-based standard baseline were independently audited. ASR remains conditional on initially correctly classified samples and should be interpreted alongside clean and adversarial accuracy.
 - PGD-50 with five restarts is a stronger evaluation than the earlier PGD-10 runs, but it is not a formal guarantee of worst-case robustness.
 - CIFAR-100 SimpleCNN results are exploratory five-epoch, single-seed results.
 - HYDRA was inspected and smoke-tested on a limited subset with short runs. A full reproduction of the paper has **not** been completed.
-- Unstructured weight sparsity did not translate into demonstrated storage or inference-speed savings in the current benchmark.
-
+- Unstructured weight sparsity did not translate into demonstrated storage or inference-speed savings in the preliminary dense-model benchmark.
 ## Project Documentation
 
-- [PROGRESS.md](PROGRESS.md) — detailed session history, experiment configurations, results, limitations, and remaining work.
-- [PLAN.md](PLAN.md) — research milestones and exit criteria.
+- [PROGRESS.md](PROGRESS.md) â€” detailed session history, experiment configurations, results, limitations, and remaining work.
+- [PLAN.md](PLAN.md) â€” research milestones and exit criteria.
 
 ## Research References
 
-- [HYDRA: Pruning Adversarially Robust Neural Networks](https://arxiv.org/abs/2002.10509) · [Official repository](https://github.com/inspire-group/hydra)
+- [HYDRA: Pruning Adversarially Robust Neural Networks](https://arxiv.org/abs/2002.10509) Â· [Official repository](https://github.com/inspire-group/hydra)
 - [Robustness-Aware-Pruning-ADMM](https://github.com/yeshaokai/Robustness-Aware-Pruning-ADMM)
 - [CAGE](https://github.com/XinweiZhang1998/CAGE)
 

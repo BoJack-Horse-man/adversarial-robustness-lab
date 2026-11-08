@@ -122,13 +122,16 @@ Investigate how adversarial training and model compression affect the clean accu
 
 ## Current priority order
 
-1. Repeat key training, pruning, and fine-tuning experiments across multiple independent seeds.
-2. Retrain the ResNet-18 baseline and select checkpoints using validation data only.
-3. Independently audit ASR calculations and evaluation denominators.
-4. Consolidate the experimental tables, figures, settings, and limitations.
-5. Define a specific research gap and testable contribution with the supervisor.
-6. Decide whether a full HYDRA reproduction or quantization experiment is necessary for that research question.
-7. Prepare the research report.
+The experimental scope is frozen. The remaining priorities are focused on completing and presenting the work already conducted.
+
+1. Review and finalize `PROGRESS.md` while preserving its historical experiment records.
+2. Finalize this `PLAN.md` so it accurately distinguishes completed work, historical plans, and current completion tasks.
+3. Update `README.md` with the final project overview, methodology, and key findings.
+4. Consolidate the existing experimental results into final comparison tables.
+5. Prepare figures from the existing CSV files and recorded results.
+6. Verify that the metrics and interpretations in the final documents agree with the existing experiment records.
+7. Complete the methodology, results, discussion, limitations, and conclusion in the final research report.
+8. Prepare the final report for supervisor review.
 
 ## Key references
 
@@ -137,3 +140,14 @@ Investigate how adversarial training and model compression affect the clean accu
 - CAGE: https://github.com/XinweiZhang1998/CAGE
 - CIFAR-10/100: https://www.cs.toronto.edu/~kriz/cifar.html
 - PyTorch: https://pytorch.org/
+
+
+## Final Scope and Completion Update - 2026-11-08
+
+This update records the current project direction. The historical milestone descriptions, earlier plans, experiment records, and references above are retained as part of the research history. Earlier statements describing experiments as remaining work reflect the plans at the time they were written; they are not current instructions to expand the project.
+
+The validation-based ResNet-18 baseline, independent ASR audit, FGSM adversarial fine-tuning, FGSM/PGD comparisons, PGD-50 five-restart comparison, and 30%, 50%, and 70% pruning evaluations for both the standard and FGSM-trained validation-based models have been completed and documented in `PROGRESS.md`.
+
+No additional experiments are planned within the current scope. In particular, multi-seed experiments, additional PGD-50 pruning evaluations, further CIFAR-100 experiments, quantization, BatchNorm ablations, sparse-inference experiments, and full HYDRA reproduction are not part of the remaining work. Their absence will be acknowledged as limitations or possible future directions where relevant.
+
+The remaining work is limited to reviewing and organizing existing results, finalizing project documentation, preparing comparison tables and figures from existing data, and completing the final research report for review.
